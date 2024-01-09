@@ -4,8 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.files.FileHandle;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -18,6 +24,7 @@ public class GameScreen implements Screen {
     private final BitmapFont font;
 
     private float sinusInput = 0f;
+    Texture mapTexture;
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
@@ -63,13 +70,7 @@ public class GameScreen implements Screen {
         font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);
 
         // Draw the character next to the text :) / We can reuse sinusInput here
-        game.getSpriteBatch().draw(
-                game.getCharacterDownAnimation().getKeyFrame(sinusInput, true),
-                textX - 96,
-                textY - 64,
-                64,
-                128
-        );
+        game.getSpriteBatch().draw(mapTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
     }
@@ -89,8 +90,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-
+        MapLoader.loadMap("maps/level-1.properties");
+        int[][] loadedMap = MapLoader.getLoadedMap();
+        mapTexture = new Texture(Gdx.files.internal("assets/basictiles.png"));
     }
+
+
 
     @Override
     public void hide() {

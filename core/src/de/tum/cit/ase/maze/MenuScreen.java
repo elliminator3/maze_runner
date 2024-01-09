@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import com.badlogic.gdx.graphics.Color;
+
 /**
  * The MenuScreen class is responsible for displaying the main menu of the game.
  * It extends the LibGDX Screen class and sets up the UI components for the menu.
@@ -20,6 +22,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class MenuScreen implements Screen {
 
     private final Stage stage;
+    private final Color backgroundColor = new Color(0.6f, 0.8f, 1.0f, 1.0f);
 
     /**
      * Constructor for MenuScreen. Sets up the camera, viewport, stage, and UI elements.
@@ -38,21 +41,33 @@ public class MenuScreen implements Screen {
         stage.addActor(table); // Add the table to the stage
 
         // Add a label as a title
-        table.add(new Label("Hello World from the Menu!", game.getSkin(), "title")).padBottom(80).row();
+        table.add(new Label("Welcome to Maze Runner!!", game.getSkin(), "title")).padBottom(80).row();
 
         // Create and add a button to go to the game screen
         TextButton goToGameButton = new TextButton("Go To Game", game.getSkin());
-        table.add(goToGameButton).width(300).row();
+        table.add(goToGameButton).width(600).row();
         goToGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.goToGame(); // Change to the game screen when button is pressed
             }
         });
+
+        TextButton goToSettingsButton = new TextButton("Go To Settings", game.getSkin());
+        table.add(goToSettingsButton).width(600).row();
+        goToGameButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.goToGame(); // Change to the game screen when button is pressed
+            }
+        });
+
+        stage.getBatch().setColor(backgroundColor);
     }
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the screen
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f)); // Update the stage
         stage.draw(); // Draw the stage
