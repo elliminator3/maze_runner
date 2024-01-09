@@ -69,6 +69,8 @@ public class GameScreen implements Screen {
         movementManager.handleInput();
 
         camera.update(); // Update the camera
+        float scale = 2.2f; // Example: scale up the tiles by a factor of 2
+        game.getSpriteBatch().getTransformMatrix().idt().scale(scale, scale, 1f);
 
         // Move text in a circular path to have an example of a moving object
         sinusInput += delta;
