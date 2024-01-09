@@ -1,49 +1,52 @@
 package de.tum.cit.ase.maze;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.JsonReader;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapLoader {
 
-    private static int[][] loadedMap; // 2D array to store map data
-
-    public static void loadMap(String mapFilePath) {
-        FileHandle fileHandle = Gdx.files.internal(mapFilePath);
-
-        if (fileHandle.exists()) {
-            String fileContent = fileHandle.readString();
-            parseMapData(fileContent);
-        } else {
-            System.err.println("Map file does not exist: " + mapFilePath);
+    public static int[][] loadMap(String filePath) {
+        FileHandle file = Gdx.files.internal(filePath);
+        if (!file.exists()) {
+            Gdx.app.error("MapLoader", "File not found: " + filePath);
+            return null; // Or throw an exception if you prefer
         }
-    }
 
-    private static void parseMapData(String fileContent) {
-        // Split the file content into lines
-        String[] lines = fileContent.split("\n");
+        String fileContent = file.readString();
+        String[] lines = fileContent.split("\r\n|\r|\n");
+        Map<String, Integer> tileMap = new HashMap<>();
+        int rows = 0;
+        int cols = 0;
 
-        // Determine the size of the map based on the number of lines
-        int rows = lines.length;
-        int columns = 15;
+        // Parse the file to determine the dimensions and the tile types
+        for (String line : lines) {
+            if (!line.startsWith("#") && !line.isEmpty()) {
+                String[] parts = line.split("=");
+                String[] coordinates = parts[0].split(",");
+                int row = Integer.parseInt(coordinates[0]);
+                int col = Integer.parseInt(coordinates[1]);
+                int value = Integer.parseInt(parts[1]);
+                tileMap.put(parts[0], value);
 
-        loadedMap = new int[rows][columns];
-
-        // Find the maximum number of columns in any line
-        for (int row = 0; row < rows; row++) {
-            String[] tokens = lines[row].split("=");
-            for (String token : tokens) {
-                String[] pair = token.split(",");
-                if (pair.length > 1) {
-                    int column = Integer.parseInt(pair[0].trim());
-                    int value = Integer.parseInt(pair[1].trim());
-                    loadedMap[row][column] = value;
-                }
+                rows = Math.max(row + 1, rows);
+                cols = Math.max(col + 1, cols);
             }
         }
-    }
 
-    public static int[][] getLoadedMap() {
-        return loadedMap;
+        // Create the array that will hold the map data
+        int[][] mapData = new int[rows][cols];
+
+        // Fill in the map data using the parsed values
+        for (Map.Entry<String, Integer> entry : tileMap.entrySet()) {
+            String[] coordinates = entry.getKey().split(",");
+            int row = Integer.parseInt(coordinates[0]);
+            int col = Integer.parseInt(coordinates[1]);
+            mapData[row][col] = entry.getValue();
+        }
+
+        return mapData;
     }
 }

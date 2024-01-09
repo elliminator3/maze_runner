@@ -5,8 +5,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
+import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
+
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -23,6 +26,11 @@ public class GameScreen implements Screen {
     private static final float CHARACTER_WIDTH = 64; // Example width
     private static final float CHARACTER_HEIGHT = 128; // Example height
 
+    private CustomMapRenderer customMapRenderer;
+    private int[][] loadedMap;
+    private Tileset tileset; // The Tileset class instance
+    private static final int TILE_SIZE = 16; // The size of each tile
+
     /**
      * Constructor for GameScreen. Sets up the camera and font.
      *
@@ -30,6 +38,11 @@ public class GameScreen implements Screen {
      */
     public GameScreen(MazeRunnerGame game) {
         this.game = game;
+
+        loadedMap = MapLoader.loadMap("maps/level-1.properties");
+        tileset = new Tileset("basictiles.png", TILE_SIZE, TILE_SIZE);
+        customMapRenderer = new CustomMapRenderer(loadedMap, tileset); // Corrected to use MapRenderer
+
         // Initialize your character and movement manager here
         character = new Character(0, 0, "character.png", 3);
         movementManager = new MovementManager(character);
@@ -51,9 +64,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.goToMenu();
         }
-
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
-
         // Handle user input
         movementManager.handleInput();
 
@@ -68,12 +79,16 @@ public class GameScreen implements Screen {
         game.getSpriteBatch().setProjectionMatrix(camera.combined);
 
         game.getSpriteBatch().begin(); // Important to call this before drawing anything
-
         // Render the text
         font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);
 
+
+
+        // Render the map
+        customMapRenderer.render(game.getSpriteBatch());
         // Draw the character
         character.render(game.getSpriteBatch());
+
 
         /* Draw the character next to the text :) / We can reuse sinusInput here
         game.getSpriteBatch().draw(
@@ -86,6 +101,9 @@ public class GameScreen implements Screen {
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
     }
+
+
+
 
     @Override
     public void resize(int width, int height) {
@@ -102,7 +120,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-
+       loadedMap = MapLoader.loadMap("maps/level-1.properties");
     }
 
     @Override
@@ -113,6 +131,7 @@ public class GameScreen implements Screen {
     public void dispose() {
         //dispose assets like textures when you're done with them
         character.getTexture().dispose();
+        tileset.dispose();
     }
 
     // Additional methods and logic can be added as needed for the game screen
