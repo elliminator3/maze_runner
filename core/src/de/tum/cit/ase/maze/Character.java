@@ -1,21 +1,39 @@
 package de.tum.cit.ase.maze;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Character extends GameObject{
     private int lives;
     private boolean hasKey;
 
+    // Additional attributes to handle animations
+    private TextureRegion[][] characterFrames;
+    private TextureRegion currentFrame;
+    private static final int FRAME_COLS = 16; // Number of columns in the sprite sheet
+    private static final int FRAME_ROWS = 7; // Number of rows in the sprite sheet
+
     public Character(float x, float y, String texturePath, int lives) {
         super(x, y, texturePath);
         this.lives = lives;
         this.hasKey = false;
+
+        // Split the sprite sheet into individual frames
+        Texture characterSheet = new Texture(Gdx.files.internal(texturePath));
+        TextureRegion[][] tmp = TextureRegion.split(characterSheet,
+                characterSheet.getWidth() / FRAME_COLS,
+                characterSheet.getHeight() / FRAME_ROWS);
+
+        // Assuming you want the first frame of the first animation row
+        currentFrame = tmp[0][0];
     }
 
     //specifies how to draw the character on the screen using a SpriteBatch
     @Override
     public void render(SpriteBatch batch) {
-        batch.draw(texture, super.getX(), super.getY());
+        batch.draw(currentFrame, super.getX(), super.getY());
     }
 
     //Movement, missing: collusion detection and continuous movement
