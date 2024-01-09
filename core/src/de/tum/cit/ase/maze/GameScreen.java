@@ -4,14 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
-
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.files.FileHandle;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -22,9 +17,11 @@ public class GameScreen implements Screen {
     private final MazeRunnerGame game;
     private final OrthographicCamera camera;
     private final BitmapFont font;
-
+    private Character character;
+    private MovementManager movementManager; // The movement manager
     private float sinusInput = 0f;
-    Texture mapTexture;
+    private static final float CHARACTER_WIDTH = 64; // Example width
+    private static final float CHARACTER_HEIGHT = 128; // Example height
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
@@ -33,6 +30,9 @@ public class GameScreen implements Screen {
      */
     public GameScreen(MazeRunnerGame game) {
         this.game = game;
+        // Initialize your character and movement manager here
+        character = new Character(0, 0, "character.png", 3);
+        movementManager = new MovementManager(character);
 
         // Create and configure the camera for the game view
         camera = new OrthographicCamera();
@@ -54,6 +54,9 @@ public class GameScreen implements Screen {
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
 
+        // Handle user input
+        movementManager.handleInput();
+
         camera.update(); // Update the camera
 
         // Move text in a circular path to have an example of a moving object
@@ -69,8 +72,17 @@ public class GameScreen implements Screen {
         // Render the text
         font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);
 
-        // Draw the character next to the text :) / We can reuse sinusInput here
-        game.getSpriteBatch().draw(mapTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // Draw the character
+        character.render(game.getSpriteBatch());
+
+        /* Draw the character next to the text :) / We can reuse sinusInput here
+        game.getSpriteBatch().draw(
+                game.getCharacterDownAnimation().getKeyFrame(sinusInput, true),
+                textX - 96,
+                textY - 64,
+                64,
+                128
+        );*/
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
     }
@@ -90,12 +102,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        MapLoader.loadMap("maps/level-1.properties");
-        int[][] loadedMap = MapLoader.getLoadedMap();
-        mapTexture = new Texture(Gdx.files.internal("assets/basictiles.png"));
+
     }
-
-
 
     @Override
     public void hide() {
@@ -103,6 +111,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        //dispose assets like textures when you're done with them
+        character.getTexture().dispose();
     }
 
     // Additional methods and logic can be added as needed for the game screen
