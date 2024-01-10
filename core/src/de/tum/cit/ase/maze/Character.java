@@ -54,4 +54,4 @@ public class Character extends GameObject{
         super.setX(super.getX()-1);
     }
 
-}
+} //10.01.

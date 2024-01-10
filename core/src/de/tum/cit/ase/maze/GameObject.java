@@ -42,4 +42,4 @@ public abstract class GameObject {
     public void setTexture(Texture texture) {
         this.texture = texture;
     }
-}
+} //10.01.

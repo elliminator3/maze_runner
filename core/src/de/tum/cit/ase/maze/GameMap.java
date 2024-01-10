@@ -82,4 +82,4 @@ public class GameMap {
             }
         }
 
-    }
+    } //10.01.

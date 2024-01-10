@@ -20,4 +20,4 @@ public class MovementManager {
             character.moveRight();
         }
     }
-}
+} //10.01.
