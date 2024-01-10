@@ -10,6 +10,7 @@ import java.util.Properties;
 public class GameMap {
     //class to hold the tiles and layout of a map
     private GameObject[][] gameObjects;
+    private GameObject[][] gameObjectsBackground;
 
     public GameMap(String levelFilePath) {
         try {
@@ -24,13 +25,25 @@ public class GameMap {
         Properties props = new Properties();
         props.load(Gdx.files.internal(levelFilePath).reader());
 
+        // Calculate map size and initialize gameObjects with path objects
         gameObjects = calculateMapSize(props);
+        gameObjectsBackground = calculateMapSize(props);
+
+        for (int y = 0; y < gameObjectsBackground.length; y++) {
+            for (int x = 0; x < gameObjectsBackground[y].length; x++) {
+                gameObjectsBackground[x][y] = new Path(x, y, "basictiles.png");
+            }
+        }
         for (String key : props.stringPropertyNames()) {
             String[] parts = key.split(",");
             int x = Integer.parseInt(parts[0]);
             int y = Integer.parseInt(parts[1]);
             int tileType = Integer.parseInt(props.getProperty(key));
-            gameObjects[x][y] = createTile(tileType, x, y);
+
+            // Only overwrite if the tileType is not a path
+            if (tileType == 0|tileType == 1|tileType == 2|tileType == 3|tileType == 4|tileType == 5) {
+                gameObjects[x][y] = createTile(tileType, x, y);
+            }
         }
     }
 
@@ -64,7 +77,7 @@ public class GameMap {
             case 5:
                 return new Key(x, y, "objects.png");
             default:
-                return new Path(x,y,"basictiles.png"); // default has to be path
+                return null;
         }
     }
 
@@ -73,11 +86,8 @@ public class GameMap {
         int tileSize = 16;
             for (int y = 0; y < gameObjects.length; y++) {
                 for (int x = 0; x < gameObjects[y].length; x++) {
-                    if (gameObjects[x][y] != null) {
-                        float renderX = x * tileSize;
-                        float renderY = y * tileSize;
-                        gameObjects[x][y].render(batch, renderX, renderY);
-                    }
+                    gameObjects[x][y].render(batch, x * tileSize, y * tileSize);
+                    gameObjectsBackground[x][y].render(batch, x * tileSize, y * tileSize);
                 }
             }
         }

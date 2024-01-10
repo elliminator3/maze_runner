@@ -33,7 +33,7 @@ public class GameScreen implements Screen {
         // Initialize your character and movement manager here
         character = new Character(0, 0, "character.png", 3);
         movementManager = new MovementManager(character);
-        gameMap = new GameMap("maps/level-1.properties");
+        gameMap = new GameMap("maps/level-5.properties");
 
         // Create and configure the camera for the game view
         camera = new OrthographicCamera();
@@ -74,8 +74,8 @@ public class GameScreen implements Screen {
         font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);*/
 
         // Draw the character
-        character.render(game.getSpriteBatch());
         gameMap.render(game.getSpriteBatch());
+        character.render(game.getSpriteBatch());
 
         /* Draw the character next to the text :) / We can reuse sinusInput here
         game.getSpriteBatch().draw(
