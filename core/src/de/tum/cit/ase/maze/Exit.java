@@ -25,4 +25,8 @@ public class Exit extends GameObject{
     public void render(SpriteBatch batch) {
         batch.draw(currentFrame, super.getX(), super.getY());
     }
+
+    public void render(SpriteBatch batch, float x, float y) {
+        batch.draw(currentFrame, x, y);
+    }
 }

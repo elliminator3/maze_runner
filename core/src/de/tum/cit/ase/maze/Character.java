@@ -35,6 +35,11 @@ public class Character extends GameObject{
         batch.draw(currentFrame, super.getX(), super.getY());
     }
 
+    @Override
+    public void render(SpriteBatch batch, float x, float y) {
+        batch.draw(currentFrame, super.getX(), super.getY());
+    }
+
     //Movement, missing: collusion detection and continuous movement
     public void moveUp(){
         super.setY(super.getY()+1);

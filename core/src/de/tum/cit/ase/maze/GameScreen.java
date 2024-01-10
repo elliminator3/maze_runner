@@ -20,6 +20,7 @@ public class GameScreen implements Screen {
     private Character character;
     private MovementManager movementManager; // The movement manager
     private float sinusInput = 0f;
+    private GameMap gameMap;
 
 
     /**
@@ -32,6 +33,7 @@ public class GameScreen implements Screen {
         // Initialize your character and movement manager here
         character = new Character(0, 0, "character.png", 3);
         movementManager = new MovementManager(character);
+        gameMap = new GameMap("maps/level-1.properties");
 
         // Create and configure the camera for the game view
         camera = new OrthographicCamera();
@@ -73,6 +75,7 @@ public class GameScreen implements Screen {
 
         // Draw the character
         character.render(game.getSpriteBatch());
+        gameMap.render(game.getSpriteBatch());
 
         /* Draw the character next to the text :) / We can reuse sinusInput here
         game.getSpriteBatch().draw(

@@ -4,38 +4,38 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
 import java.io.IOException;
 import java.util.Properties;
 
 public class GameMap {
-    //class to hold the tiles and layout of a map and for methods to load levels from files and render them
-    private TextureRegion[][] tiles;
-    private int[][] mapLayout;
+    //class to hold the tiles and layout of a map
+    private GameObject[][] gameObjects;
+
     public GameMap(String levelFilePath) {
         try {
             loadLevel(levelFilePath);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Gdx.app.log("Level Load Error", "Failed to load level file: " + levelFilePath, e);
         }
-        splitTileset();
     }
 
+    //loads the level configuration from a .properties file
     private void loadLevel(String levelFilePath) throws IOException {
         Properties props = new Properties();
-            props.load(Gdx.files.internal(levelFilePath).reader()); //loads the level configuration from a .properties file /
+        props.load(Gdx.files.internal(levelFilePath).reader());
 
-        // Assume a fixed map size or calculate based on properties
-        mapLayout = calculateMapSize(props);
-        for (String key : props.stringPropertyNames()) { //initializes and populates the mapLayout array
+        gameObjects = calculateMapSize(props);
+        for (String key : props.stringPropertyNames()) {
             String[] parts = key.split(",");
             int x = Integer.parseInt(parts[0]);
             int y = Integer.parseInt(parts[1]);
             int tileType = Integer.parseInt(props.getProperty(key));
-            mapLayout[x][y] = tileType;
+            gameObjects[x][y] = createTile(tileType, x, y);
         }
     }
-    private int[][] calculateMapSize(Properties properties) {
+
+    //helper method to calculate map size
+    private GameObject[][] calculateMapSize(Properties properties) {
         int maxX = 0;
         int maxY = 0;
         for (String key : properties.stringPropertyNames()) {
@@ -45,23 +45,41 @@ public class GameMap {
             if (x > maxX) maxX = x;
             if (y > maxY) maxY = y;
         }
-        return mapLayout = new int[maxX + 1][maxY + 1]; // +1 because arrays are zero-based
+        return gameObjects = new GameObject [maxX + 1][maxY + 1]; // +1 because arrays are zero-based
     }
 
-    private void splitTileset() {
-        //loads the tileset image and uses TextureRegion.split to divide this image into smaller regions, each representing a tile
-        Texture tilesetTexture = new Texture(Gdx.files.internal("basictiles.png"));
-        tiles = TextureRegion.split(tilesetTexture, 7, 13);
-    }
-
-    public void render(SpriteBatch batch) {
-        for (int y = 0; y < mapLayout.length; y++) {
-            for (int x = 0; x < mapLayout[y].length; x++) {
-                int tileType = mapLayout[x][y];
-                TextureRegion tileRegion = tiles[tileType / tiles[0].length][tileType % tiles[0].length];
-                batch.draw(tileRegion, x * 7, y * 13);
-            }
+    //helper method to return the right object texture (wall, entry ...) for each tile type / not efficient
+    public GameObject createTile(int tileType, float x, float y) {
+        switch (tileType) {
+            case 0:
+                return new Wall(x, y, "basictiles.png");
+            case 1:
+                return new Entry(x, y, "basictiles.png");
+            case 2:
+                return new Exit(x, y, "things.png");
+            case 3:
+                return new Trap(x, y, "basictiles.png");
+            case 4:
+                return new Enemy(x, y, "mobs.png");
+            case 5:
+                return new Key(x, y, "objects.png");
+            default:
+                return new Path(x,y,"basictiles.png"); // default has to be path
         }
     }
 
-}
+
+        public void render (SpriteBatch batch){
+        int tileSize = 16;
+            for (int y = 0; y < gameObjects.length; y++) {
+                for (int x = 0; x < gameObjects[y].length; x++) {
+                    if (gameObjects[x][y] != null) {
+                        float renderX = x * tileSize;
+                        float renderY = y * tileSize;
+                        gameObjects[x][y].render(batch, renderX, renderY);
+                    }
+                }
+            }
+        }
+
+    }

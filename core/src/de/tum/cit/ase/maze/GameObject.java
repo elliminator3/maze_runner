@@ -17,6 +17,7 @@ public abstract class GameObject {
 
     //integral to drawing (visually representing) each game object on the screen
     public abstract void render(SpriteBatch batch);
+    public abstract void render(SpriteBatch batch, float x, float y);
 
     public float getX() {
         return x;
