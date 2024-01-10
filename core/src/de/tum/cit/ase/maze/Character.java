@@ -10,7 +10,6 @@ public class Character extends GameObject{
     private boolean hasKey;
 
     // Additional attributes to handle animations
-    private TextureRegion[][] characterFrames;
     private TextureRegion currentFrame;
     private static final int FRAME_COLS = 16; // Number of columns in the sprite sheet
     private static final int FRAME_ROWS = 7; // Number of rows in the sprite sheet

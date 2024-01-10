@@ -20,8 +20,7 @@ public class GameScreen implements Screen {
     private Character character;
     private MovementManager movementManager; // The movement manager
     private float sinusInput = 0f;
-    private static final float CHARACTER_WIDTH = 64; // Example width
-    private static final float CHARACTER_HEIGHT = 128; // Example height
+
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
@@ -59,18 +58,18 @@ public class GameScreen implements Screen {
 
         camera.update(); // Update the camera
 
-        // Move text in a circular path to have an example of a moving object
+        /*Move text in a circular path to have an example of a moving object
         sinusInput += delta;
         float textX = (float) (camera.position.x + Math.sin(sinusInput) * 100);
-        float textY = (float) (camera.position.y + Math.cos(sinusInput) * 100);
+        float textY = (float) (camera.position.y + Math.cos(sinusInput) * 100);*/
 
         // Set up and begin drawing with the sprite batch
         game.getSpriteBatch().setProjectionMatrix(camera.combined);
 
         game.getSpriteBatch().begin(); // Important to call this before drawing anything
 
-        // Render the text
-        font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);
+        /*Render the text
+        font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);*/
 
         // Draw the character
         character.render(game.getSpriteBatch());
