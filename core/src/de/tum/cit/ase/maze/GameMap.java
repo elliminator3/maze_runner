@@ -10,7 +10,6 @@ import java.util.Properties;
 public class GameMap {
     //class to hold the tiles and layout of a map
     private GameObject[][] gameObjects;
-    private GameObject[][] gameObjectsBackground;
 
     public GameMap(String levelFilePath) {
         try {
@@ -25,22 +24,17 @@ public class GameMap {
         Properties props = new Properties();
         props.load(Gdx.files.internal(levelFilePath).reader());
 
-        // Calculate map size and initialize gameObjects with path objects
+        // Calculate map size
         gameObjects = calculateMapSize(props);
-        gameObjectsBackground = calculateMapSize(props);
 
-        for (int y = 0; y < gameObjectsBackground.length; y++) {
-            for (int x = 0; x < gameObjectsBackground[y].length; x++) {
-                gameObjectsBackground[x][y] = new Path(x, y, "basictiles.png");
-            }
-        }
+        //extract tileType values and coordinates from .properties file
         for (String key : props.stringPropertyNames()) {
             String[] parts = key.split(",");
             int x = Integer.parseInt(parts[0]);
             int y = Integer.parseInt(parts[1]);
             int tileType = Integer.parseInt(props.getProperty(key));
 
-            // Only overwrite if the tileType is not a path
+            //fill map with the respective tileType at the given coordinates
             if (tileType == 0|tileType == 1|tileType == 2|tileType == 3|tileType == 4|tileType == 5) {
                 gameObjects[x][y] = createTile(tileType, x, y);
             }
@@ -61,7 +55,7 @@ public class GameMap {
         return gameObjects = new GameObject [maxX + 1][maxY + 1]; // +1 because arrays are zero-based
     }
 
-    //helper method to return the right object texture (wall, entry ...) for each tile type / not efficient
+    //helper method to return the right object texture (wall, entry ...) for each tile type / not efficient?
     public GameObject createTile(int tileType, float x, float y) {
         switch (tileType) {
             case 0:
@@ -81,15 +75,32 @@ public class GameMap {
         }
     }
 
-
-        public void render (SpriteBatch batch){
+    //method for drawing the maze
+    public void render (SpriteBatch batch){
         int tileSize = 16;
             for (int y = 0; y < gameObjects.length; y++) {
                 for (int x = 0; x < gameObjects[y].length; x++) {
-                    gameObjects[x][y].render(batch, x * tileSize, y * tileSize);
-                    gameObjectsBackground[x][y].render(batch, x * tileSize, y * tileSize);
+                    if (gameObjects[x][y] != null) { //don't try to render null objects
+                        gameObjects[x][y].render(batch, x * tileSize, y * tileSize);
+                    }
                 }
             }
+    }
+
+    //method to unable character to move through walls
+    public boolean isCellBlocked(float x, float y){
+        int tileSize = 16; // size of our tiles
+        int tileX = (int)(x / tileSize);
+        int tileY = (int)(y / tileSize);
+
+        //check maze bounds
+        if (tileX < 0 || tileX >= gameObjects.length || tileY < 0 || tileY >= gameObjects[0].length) {
+            return true;
         }
+        //check for walls / other non-walkable objects?(enemy)
+        GameObject gameObject = gameObjects[tileX][tileY];
+        return gameObject instanceof Wall; // or check for any other non-walkable object
+    }
+
 
     } //10.01.

@@ -26,6 +26,7 @@ public class Wall extends GameObject{
         batch.draw(currentFrame, super.getX(), super.getY());
     }
     public void render(SpriteBatch batch, float x, float y) {
+        batch.enableBlending();
         batch.draw(currentFrame, x, y);
     }
 

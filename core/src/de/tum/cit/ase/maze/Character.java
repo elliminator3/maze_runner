@@ -12,7 +12,7 @@ public class Character extends GameObject{
     // Additional attributes to handle animations
     private TextureRegion currentFrame;
     private static final int FRAME_COLS = 16; // Number of columns in the sprite sheet
-    private static final int FRAME_ROWS = 7; // Number of rows in the sprite sheet
+    private static final int FRAME_ROWS = 8; // Number of rows in the sprite sheet
 
     public Character(float x, float y, String texturePath, int lives) {
         super(x, y, texturePath);
@@ -37,21 +37,29 @@ public class Character extends GameObject{
 
     @Override
     public void render(SpriteBatch batch, float x, float y) {
-        batch.draw(currentFrame, super.getX(), super.getY());
+        //not needed?
     }
 
     //Movement, missing: collusion detection and continuous movement
     public void moveUp(){
         super.setY(super.getY()+1);
     }
-    public void moveDown(){
-        super.setY(super.getY()-1);
-    }
+    public void moveDown(){super.setY(super.getY()-1);}
     public void moveRight(){
         super.setX(super.getX()+1);
     }
     public void moveLeft(){
         super.setX(super.getX()-1);
+    }
+
+    // Method to get the width of the character's current frame
+    public float getWidth() {
+        return currentFrame.getRegionWidth();
+    }
+
+    // Method to get the height of the character's current frame
+    public float getHeight() {
+        return currentFrame.getRegionHeight();
     }
 
 } //10.01.

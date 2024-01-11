@@ -29,6 +29,7 @@ public class Enemy extends GameObject{
     }
 
     public void render(SpriteBatch batch, float x, float y) {
+        batch.enableBlending();
         batch.draw(currentFrame, x, y);
     }
 } //10.01
