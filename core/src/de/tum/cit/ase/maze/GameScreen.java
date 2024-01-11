@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -22,6 +24,9 @@ public class GameScreen implements Screen {
     private float sinusInput = 0f;
     private GameMap gameMap;
     private GameMapBackground background;
+    private Hud hud;
+
+    private Viewport gamePort;
 
 
     /**
@@ -31,6 +36,9 @@ public class GameScreen implements Screen {
      */
     public GameScreen(MazeRunnerGame game) {
         this.game = game;
+        gamePort = new FitViewport(MazeRunnerGame.V_WIDTH, MazeRunnerGame.V_HEIGHT); //Mario
+        hud = new Hud(game.getSpriteBatch()); //Mario
+
         // Initialize character and movement manager
         character = new Character(30, 30, "character.png", 3);
         background = new GameMapBackground("maps/level-1.properties");
@@ -40,7 +48,7 @@ public class GameScreen implements Screen {
         // Create and configure the camera for the game view
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        camera.zoom = 0.7f;
+        camera.zoom = 0.75f;
 
         // Get the font from the game's skin
         font = game.getSkin().getFont("font");
@@ -56,7 +64,8 @@ public class GameScreen implements Screen {
         }
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
-
+        hud.stage.act(delta);
+        hud.stage.draw();
         // Handle user input
         movementManager.handleInput();
 
@@ -81,6 +90,8 @@ public class GameScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         camera.setToOrtho(false);
+        gamePort.update(width,height); //Mario
+        camera.update();
     }
 
     @Override
@@ -107,4 +118,4 @@ public class GameScreen implements Screen {
     }
 
     // Additional methods and logic can be added as needed for the game screen
-} //10.01.
+}

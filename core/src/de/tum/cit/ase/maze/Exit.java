@@ -30,4 +30,4 @@ public class Exit extends GameObject{
         batch.enableBlending();
         batch.draw(currentFrame, x, y);
     }
-} //10.01.
+}

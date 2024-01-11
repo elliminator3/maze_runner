@@ -62,4 +62,4 @@ public class Character extends GameObject{
         return currentFrame.getRegionHeight();
     }
 
-} //10.01.
+}

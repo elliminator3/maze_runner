@@ -16,6 +16,8 @@ import games.spooky.gdx.nativefilechooser.NativeFileChooser;
  * It manages the screens and global resources like SpriteBatch and Skin.
  */
 public class MazeRunnerGame extends Game {
+    public static final int V_WIDTH = 400;
+    public static final int V_HEIGHT = 208;
     // Screens
     private MenuScreen menuScreen;
     private GameScreen gameScreen;

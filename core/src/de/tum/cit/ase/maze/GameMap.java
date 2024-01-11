@@ -78,13 +78,13 @@ public class GameMap {
     //method for drawing the maze
     public void render (SpriteBatch batch){
         int tileSize = 16;
-            for (int y = 0; y < gameObjects.length; y++) {
-                for (int x = 0; x < gameObjects[y].length; x++) {
-                    if (gameObjects[x][y] != null) { //don't try to render null objects
-                        gameObjects[x][y].render(batch, x * tileSize, y * tileSize);
-                    }
+        for (int y = 0; y < gameObjects.length; y++) {
+            for (int x = 0; x < gameObjects[y].length; x++) {
+                if (gameObjects[x][y] != null) { //don't try to render null objects
+                    gameObjects[x][y].render(batch, x * tileSize, y * tileSize);
                 }
             }
+        }
     }
 
     //method to unable character to move through walls
@@ -103,4 +103,4 @@ public class GameMap {
     }
 
 
-    } //10.01.
+}

@@ -32,4 +32,4 @@ public class Enemy extends GameObject{
         batch.enableBlending();
         batch.draw(currentFrame, x, y);
     }
-} //10.01
+}
