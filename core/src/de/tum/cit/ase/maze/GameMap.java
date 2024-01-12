@@ -78,29 +78,32 @@ public class GameMap {
     //method for drawing the maze
     public void render (SpriteBatch batch){
         int tileSize = 16;
-        for (int y = 0; y < gameObjects.length; y++) {
-            for (int x = 0; x < gameObjects[y].length; x++) {
-                if (gameObjects[x][y] != null) { //don't try to render null objects
-                    gameObjects[x][y].render(batch, x * tileSize, y * tileSize);
+            for (int y = 0; y < gameObjects.length; y++) {
+                for (int x = 0; x < gameObjects[y].length; x++) {
+                    if (gameObjects[x][y] != null) { //don't try to render null objects
+                        gameObjects[x][y].render(batch, x * tileSize, y * tileSize);
+                    }
                 }
             }
-        }
     }
 
     //method to unable character to move through walls
     public boolean isCellBlocked(float x, float y){
         int tileSize = 16; // size of our tiles
-        int tileX = (int)(x / tileSize);
-        int tileY = (int)(y / tileSize);
+        float offsetX = (34 - tileSize) / 2f;
+        float offsetY = (32 - tileSize) / 2f;
+        // Calculate the offset to center the 16x16 collision box within the 34x32 sprite
+        int tileX = (int)((x + offsetX) / tileSize);
+        int tileY = (int)((y + offsetY) / tileSize);
 
         //check maze bounds
-        if (tileX < 0 || tileX >= gameObjects.length || tileY < 0 || tileY >= gameObjects[0].length) {
+        if (tileX < 0 || tileX > gameObjects.length || tileY < 0 || tileY > gameObjects[0].length) {
             return true;
-        }
+            }
         //check for walls / other non-walkable objects?(enemy)
         GameObject gameObject = gameObjects[tileX][tileY];
-        return gameObject instanceof Wall; // or check for any other non-walkable object
+        return gameObject instanceof Wall;
+        }
+
+
     }
-
-
-}

@@ -12,28 +12,23 @@ public class MovementManager {
     }
 
     public void handleInput() {
-        int tileSize = 16;
-        float characterWidth = character.getWidth();
-        float characterHeight = character.getHeight();
         float nextX = character.getX();
         float nextY = character.getY();
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            nextY += tileSize;
-            if (!maze.isCellBlocked(nextX, nextY + characterHeight)) {
+            if (!maze.isCellBlocked(nextX, nextY + 9)) {
                 character.moveUp();
             }
-        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            if (!maze.isCellBlocked(nextX, nextY - tileSize)) {
+        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) { //9+5=7+7 just different division (looks wierd otherwise)
+            if (!maze.isCellBlocked(nextX, nextY - 5)) {
                 character.moveDown();
             }
-        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            if (!maze.isCellBlocked(nextX - tileSize, nextY)) {
+        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) { //7 is one smaller than sprite size divided by two (origin point for collusion detection is the middle)
+            if (!maze.isCellBlocked(nextX - 7, nextY)) {
                 character.moveLeft();
             }
         } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            nextX += tileSize;
-            if (!maze.isCellBlocked(nextX + characterWidth, nextY)) {
+            if (!maze.isCellBlocked(nextX + 7, nextY)) {
                 character.moveRight();
             }
         }

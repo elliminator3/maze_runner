@@ -61,5 +61,4 @@ public class Character extends GameObject{
     public float getHeight() {
         return currentFrame.getRegionHeight();
     }
-
 }
