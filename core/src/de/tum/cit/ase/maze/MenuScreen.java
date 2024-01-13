@@ -42,7 +42,7 @@ public class MenuScreen implements Screen {
 
         // Create and add a button to go to the game screen
         TextButton goToGameButton = new TextButton("Go To Game", game.getSkin());
-        table.add(goToGameButton).width(300).row();
+        table.add(goToGameButton).width(500).row();
         goToGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -52,7 +52,7 @@ public class MenuScreen implements Screen {
 
         // Create and add button to exit the game
         TextButton exitButton = new TextButton("Exit", game.getSkin());
-        table.add(exitButton).width(300).row();
+        table.add(exitButton).width(500).row();
         exitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
