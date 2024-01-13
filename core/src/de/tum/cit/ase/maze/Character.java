@@ -5,9 +5,23 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.DelayedRemovalArray;
+import com.badlogic.gdx.graphics.g2d.Animation;
+
+import java.awt.*;
+
 public class Character extends GameObject{
     private int lives;
     private boolean hasKey;
+    private GameObject gameObject;
+    private float width;
+    private float height;
+    private Key key;
+    private Rectangle boundingRectangle;
+
 
     // Additional attributes to handle animations
     private TextureRegion currentFrame;
@@ -18,6 +32,8 @@ public class Character extends GameObject{
         super(x, y, texturePath);
         this.lives = lives;
         this.hasKey = false;
+        this.key = null;
+        //boundingRectangle = new Rectangle(x, y, getWidth(), getHeight());
 
         // Split the sprite sheet into individual frames
         Texture characterSheet = new Texture(Gdx.files.internal(texturePath));
@@ -61,4 +77,20 @@ public class Character extends GameObject{
     public float getHeight() {
         return currentFrame.getRegionHeight();
     }
+
+    public Rectangle getBoundingRectangle() {
+        return boundingRectangle;
+    }
+    /*
+    public void update(float dt) {
+        // Other character update code
+        boundingRectangle.setPosition(getX(), getY());
+
+        // Check if the character has collected the key
+        if (!hasKey && getBoundingRectangle().overlaps(key.getBoundingRectangle())) {
+            hasKey = true;
+            key.collect(); // Assuming you have a method to collect the key
+            key = null;
+              }
+    }*/
 }

@@ -25,8 +25,9 @@ public class GameScreen implements Screen {
     private GameMap gameMap;
     private GameMapBackground background;
     private Hud hud;
-
+private boolean hasKey = false;
     private Viewport gamePort;
+    private Key key;
 
 
     /**
@@ -38,6 +39,7 @@ public class GameScreen implements Screen {
         this.game = game;
         gamePort = new FitViewport(MazeRunnerGame.V_WIDTH, MazeRunnerGame.V_HEIGHT); //Mario
         hud = new Hud(game.getSpriteBatch()); //Mario
+
 
         // Initialize character and movement manager
         character = new Character(30, 30, "character.png", 3);
@@ -58,34 +60,45 @@ public class GameScreen implements Screen {
     // Screen interface methods with necessary functionality
     @Override
     public void render(float delta) {
-        // Check for escape key press to go back to the menu
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.goToMenu();
-        }
 
-        ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
+            // Check for escape key press to go back to the menu
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                pause();
+                game.goToMenu();
+            }
 
-        // Handle user input
-        movementManager.handleInput();
+            ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
+            update(delta);
+            // Handle user input
+            movementManager.handleInput();
 
-        camera.update(); // Update the camera
-
-
-        // Set up and begin drawing with the sprite batch
-        game.getSpriteBatch().setProjectionMatrix(camera.combined);
-
-        game.getSpriteBatch().begin(); // Important to call this before drawing anything
+            camera.update(); // Update the camera
 
 
-        // Draw the character
-        background.render(game.getSpriteBatch());
-        gameMap.render(game.getSpriteBatch());
+            // Set up and begin drawing with the sprite batch
+            game.getSpriteBatch().setProjectionMatrix(camera.combined);
 
-        character.render(game.getSpriteBatch());
+            game.getSpriteBatch().begin(); // Important to call this before drawing anything
 
 
-        game.getSpriteBatch().end(); // Important to call this after drawing everything
-        hud.stage.act(delta);
+            // Draw the character
+            background.render(game.getSpriteBatch());
+            gameMap.render(game.getSpriteBatch());
+
+            character.render(game.getSpriteBatch());
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                game.pause();
+                pause();
+                // Pause the game and go to the menu
+                // Ensure gameScreen is not disposed
+                game.goToMenu();
+            }
+
+
+            game.getSpriteBatch().end(); // Important to call this after drawing everything
+
+            hud.stage.act(delta);
         hud.stage.draw();
 
     }
@@ -97,13 +110,26 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
+    public void update(float dt){
+        if(!hud.isGameOver()) {
+            hud.update(dt);
+            movementManager.handleInput();
+        }
+    }
+
     @Override
     public void pause() {
+movementManager.pause();
+hud.pauseTimer();
     }
 
     @Override
     public void resume() {
+movementManager.resume();
+hud.resumeTimer();
     }
+
+
 
     @Override
     public void show() {

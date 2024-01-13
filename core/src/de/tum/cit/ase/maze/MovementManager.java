@@ -5,13 +5,16 @@ import com.badlogic.gdx.Input.Keys;
 public class MovementManager {
     private Character character;
     private GameMap maze;
+    private boolean isPaused;
 
     public MovementManager(Character character, GameMap maze) {
         this.character = character;
         this.maze = maze;
+        this.isPaused = false;
     }
 
     public void handleInput() {
+        if (isPaused) return;
         float nextX = character.getX();
         float nextY = character.getY();
 
@@ -33,5 +36,11 @@ public class MovementManager {
             }
         }
     }
+    public void pause() {
+        isPaused = true;
+    }
 
+    public void resume() {
+        isPaused = false;
+    }
 }
