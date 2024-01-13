@@ -37,21 +37,33 @@ public class Hud {
         Table table = new Table();
         table.top();
         table.setFillParent(true);
+        table.setBounds(10, 0, 5, 5);
 
-        countdownLabel = new Label(String.format("%03d", worldTimer), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        scoreLabel = new Label(String.format("%02d", score), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        timeLabel = new Label("TIME", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        levelLabel = new Label("1-1", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        worldLabel = new Label("WORLD", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        mazeLabel = new Label("MAZE", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
 
-        table.add(mazeLabel).expandX().padTop(10);
-        table.add(worldLabel).expandX().padTop(10);
-        table.add(timeLabel).expandX().padTop(10);
+        BitmapFont font = new BitmapFont();
+        font.getData().setScale(0.5f); // Scale to 50% of original size
+
+// Create a LabelStyle with the scaled font
+        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
+
+// Create the Label with the custom style
+        timeLabel = new Label(" TIME ", labelStyle);
+        levelLabel = new Label("1-1", labelStyle);
+        worldLabel = new Label(" WORLD ", labelStyle);
+        mazeLabel = new Label(" MAZE ", labelStyle);
+
+        countdownLabel = new Label(String.format("%03d", worldTimer), labelStyle);
+        scoreLabel = new Label(String.format("%02d", score), labelStyle);
+
+
+
+        table.add(mazeLabel).padTop(5); // Reduced top padding
+        table.add(worldLabel).padTop(5);
+        table.add(timeLabel).padTop(5);
         table.row();
-        table.add(scoreLabel).expandX();
-        table.add(levelLabel).expandX();
-        table.add(countdownLabel).expand();
+        table.add(scoreLabel).padTop(1); // Reduced top padding for scores
+        table.add(levelLabel).padTop(1);
+        table.add(countdownLabel).padTop(1);
 
         stage.addActor(table);
     }

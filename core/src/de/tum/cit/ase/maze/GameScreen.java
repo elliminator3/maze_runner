@@ -64,8 +64,7 @@ public class GameScreen implements Screen {
         }
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
-        hud.stage.act(delta);
-        hud.stage.draw();
+
         // Handle user input
         movementManager.handleInput();
 
@@ -81,10 +80,14 @@ public class GameScreen implements Screen {
         // Draw the character
         background.render(game.getSpriteBatch());
         gameMap.render(game.getSpriteBatch());
+
         character.render(game.getSpriteBatch());
 
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
+        hud.stage.act(delta);
+        hud.stage.draw();
+
     }
 
     @Override
