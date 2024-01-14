@@ -6,15 +6,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
-import java.awt.*;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -23,16 +17,16 @@ import java.awt.*;
 public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
-    private OrthographicCamera camera;
+    private final OrthographicCamera camera;
     private final BitmapFont font;
     private Character character;
-    private MovementManager movementManager;
+    private MovementManager movementManager; // The movement manager
     private float sinusInput = 0f;
     private GameMap gameMap;
     private GameMapBackground background;
     private Hud hud;
-    private Viewport gamePort;
 
+    private Viewport gamePort;
 
 
     /**
@@ -41,88 +35,23 @@ public class GameScreen implements Screen {
      * @param game The main game class, used to access global resources and methods.
      */
     public GameScreen(MazeRunnerGame game) {
-
         this.game = game;
+        gamePort = new FitViewport(MazeRunnerGame.V_WIDTH, MazeRunnerGame.V_HEIGHT); //Mario
+        hud = new Hud(game.getSpriteBatch()); //Mario
 
-        //initialize background and gameMap
+        // Initialize character and movement manager
+        character = new Character(30, 30, "character.png", 3);
         background = new GameMapBackground("maps/level-1.properties");
         gameMap = new GameMap("maps/level-1.properties");
-        //find entry of the gameMap
-        Point entryPoint = gameMap.findEntry();
-
-        //initialize character and camera
-        character = new Character(entryPoint.x, entryPoint.y, "character.png", 3);
         movementManager = new MovementManager(character, gameMap);
-        initializeCamera();
-        camera.position.set(character.getX(), character.getY(), 0); //viewport //tileSize
-        //screenViewport for viewport requirements
-        gamePort = new ScreenViewport(camera);
 
-        //hud //ToDo (look in resize method)
-        hud = new Hud(game.getSpriteBatch()); //Mario
+        // Create and configure the camera for the game view
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false);
+        camera.zoom = 0.75f;
 
         // Get the font from the game's skin
         font = game.getSkin().getFont("font");
-    }
-
-    //viewport requirements 1
-    private void initializeCamera() {
-        //float startPlayerX = character.getX();
-        //float startPlayerY = character.getY();
-
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.zoom = 0.5f; //zoom-level
-
-        //start camera with frame that contains the character
-        camera.position.x = character.getX();
-        camera.position.y = character.getY();;
-
-        camera.update();
-    }
-
-    //viewport requirements 2
-    private void updateCameraPosition(){
-        final float LERP_FACTOR = 0.5f;
-
-        //limits within which the camera shall follow the player's movement
-        float cameraMoveThresholdX = camera.viewportWidth * camera.zoom * 0.2f; // 10% von jeder Seite
-        float cameraMoveThresholdY = camera.viewportHeight * camera.zoom * 0.2f; // 10% von jeder Seite
-
-        //maximum permitted position of the camera based on the map
-        float maxCameraX = gameMap.getWidth() * 16 - camera.viewportWidth * camera.zoom / 2;
-        float maxCameraY = gameMap.getHeight() * 16 - camera.viewportHeight * camera.zoom / 2;
-
-        //coordinates of the character /ToDo: center!!
-        float playerCenterX = character.getX();
-        float playerCenterY = character.getY();
-
-        //set camera position to the target position
-        float targetX = playerCenterX;
-        float targetY = playerCenterY;
-
-        //has character crossed the camera boundaries? -> update the target position
-        if (playerCenterX < camera.position.x - cameraMoveThresholdX) {
-            targetX = camera.position.x - cameraMoveThresholdX;
-        } else if (playerCenterX > camera.position.x + cameraMoveThresholdX) {
-            targetX = camera.position.x + cameraMoveThresholdX;
-        }
-
-        if (playerCenterY < camera.position.y - cameraMoveThresholdY) {
-            targetY = camera.position.y - cameraMoveThresholdY;
-        } else if (playerCenterY > camera.position.y + cameraMoveThresholdY) {
-            targetY = camera.position.y + cameraMoveThresholdY;
-        }
-
-        //clamping
-        targetX = Math.max(camera.viewportWidth * camera.zoom / 2, Math.min(targetX, maxCameraX));
-        targetY = Math.max(camera.viewportHeight * camera.zoom / 2, Math.min(targetY, maxCameraY));
-
-        //interpolation
-        camera.position.x += (targetX - camera.position.x) * LERP_FACTOR;
-        camera.position.y += (targetY - camera.position.y) * LERP_FACTOR;
-
-        camera.update();
     }
 
 
@@ -135,14 +64,12 @@ public class GameScreen implements Screen {
         }
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
-        hud.stage.act(delta); //Mario
-        hud.stage.draw(); //Mario
-
-        //handle user input
+        hud.stage.act(delta);
+        hud.stage.draw();
+        // Handle user input
         movementManager.handleInput();
 
-        //viewport
-        updateCameraPosition();
+        camera.update(); // Update the camera
 
 
         // Set up and begin drawing with the sprite batch
@@ -162,35 +89,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        //update the camera with the new width and height
-        camera.viewportWidth = width;
-        camera.viewportHeight = height;
-        camera.update();
-
-        //ToDo: Hud
-        /*// Aktualisiere das Viewport des HUD mit der neuen Breite und Höhe
-        hud.getViewport().update(width, height, true);
-        hud.getViewport().apply();
-
-        // Stelle sicher, dass das HUD oben auf dem Bildschirm zentriert ist
-        hud.stage.getViewport().getCamera().position.set(width / 2f, height, 0);
-        hud.stage.getViewport().getCamera().update();
-
-        // Dies ist notwendig, damit das Layout korrekt neu berechnet wird
-        hud.stage.getViewport().update(width, height, true);
-        hud.stage.getViewport().apply();
-        hud.stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        hud.stage.getViewport().getCamera().update();
-    }
-
-        /* unser altes Zeug: viewport
-        gamePort.update(width, height);
-        updateCamera();
-        updateCameraBounds();
-
-        /*camera.setToOrtho(false);
+        camera.setToOrtho(false);
         gamePort.update(width,height); //Mario
-        camera.update();*/
+        camera.update();
     }
 
     @Override

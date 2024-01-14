@@ -7,9 +7,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.utils.Align;
+
 
 /**
  * The MazeRunnerGame class represents the core of the Maze Runner game.
@@ -21,6 +28,7 @@ public class MazeRunnerGame extends Game {
     // Screens
     private MenuScreen menuScreen;
     private GameScreen gameScreen;
+    private ShapeRenderer shapeRenderer;
 
     // Sprite Batch for rendering
     private SpriteBatch spriteBatch;
@@ -46,6 +54,7 @@ public class MazeRunnerGame extends Game {
     @Override
     public void create() {
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
+        shapeRenderer = new ShapeRenderer();
         skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
         this.loadCharacterAnimation(); // Load character animation
 
@@ -64,20 +73,63 @@ public class MazeRunnerGame extends Game {
      */
     public void goToMenu() {
         this.setScreen(new MenuScreen(this)); // Set the current screen to MenuScreen
+        //if (gameScreen != null) {
+           // gameScreen.dispose(); // Dispose the game screen if it exists
+            //gameScreen = null;}
+// Only hide the game screen, do not dispose of it
         if (gameScreen != null) {
-            gameScreen.dispose(); // Dispose the game screen if it exists
-            gameScreen = null;
+            gameScreen.pause();
+            // Do not dispose of or nullify gameScreen here
         }
+        if (menuScreen == null) {
+            menuScreen = new MenuScreen(this);
+        }
+        setScreen(menuScreen);
     }
 
     /**
      * Switches to the game screen.
      */
     public void goToGame() {
-        this.setScreen(new GameScreen(this)); // Set the current screen to GameScreen
+        gameScreen = new GameScreen(this);
+        setScreen(gameScreen);
         if (menuScreen != null) {
             menuScreen.dispose(); // Dispose the menu screen if it exists
             menuScreen = null;
+        }
+    }
+    public void resumeGame() {
+        if (gameScreen == null) {
+            Gdx.gl.glClearColor(0, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.BLACK);
+            shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            shapeRenderer.end();
+
+            spriteBatch.begin();
+            BitmapFont font = skin.getFont("font");
+            font.getData().setScale(1.5f); // Adjust the scale to fit the screen
+            String message = "YOU HAVE NOT STARTED A GAME YET";
+            float width = font.getRegion().getRegionWidth();
+            float height = font.getRegion().getRegionHeight();
+            font.draw(spriteBatch, message, (Gdx.graphics.getWidth() - width) / 2, (Gdx.graphics.getHeight() + height) / 2, width, Align.center, false);
+            spriteBatch.end();
+
+            // Code above should show a screen to inform the player that no game has been started yet but does not work
+            // timer code should let user return to menu automatically after 10 seconds but also does not work of course
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    Gdx.app.postRunnable(() -> goToMenu());
+                }
+            }, 10); // Delay in seconds
+
+        }
+        else {
+            setScreen(gameScreen);
+            gameScreen.resume();
         }
     }
 

@@ -38,15 +38,34 @@ public class MenuScreen implements Screen {
         stage.addActor(table); // Add the table to the stage
 
         // Add a label as a title
-        table.add(new Label("Hello World from the Menu!", game.getSkin(), "title")).padBottom(80).row();
+        table.add(new Label("Welcome to Maze Runner!", game.getSkin(), "title")).padBottom(80).row();
 
         // Create and add a button to go to the game screen
-        TextButton goToGameButton = new TextButton("Go To Game", game.getSkin());
-        table.add(goToGameButton).width(300).row();
+        TextButton goToGameButton = new TextButton("New Game", game.getSkin());
+        table.add(goToGameButton).width(500).row();
         goToGameButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.goToGame(); // Change to the game screen when button is pressed
+            }
+        });
+
+        TextButton continueButton = new TextButton("Continue Game", game.getSkin());
+        table.add(continueButton).width(500).row(); // makes button appear and sets width
+        continueButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.resumeGame(); // Change to the game screen when button is pressed
+            }
+        });
+
+        // Create and add button to exit the game
+        TextButton exitButton = new TextButton("Exit", game.getSkin());
+        table.add(exitButton).width(500).row(); // makes button appear and sets width
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit(); // Exit the application
             }
         });
     }
