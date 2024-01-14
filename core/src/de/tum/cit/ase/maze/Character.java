@@ -52,13 +52,24 @@ public class Character extends GameObject{
         super.setX(super.getX()-1);
     }
 
-    // Method to get the width of the character's current frame
-    public float getWidth() {
-        return currentFrame.getRegionWidth();
+    public int getLives() {
+        return lives;
     }
 
-    // Method to get the height of the character's current frame
-    public float getHeight() {
-        return currentFrame.getRegionHeight();
+    public boolean hasKey() {
+        return hasKey;
+    }
+
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
+    public void setHasKey(boolean hasKey) {
+        this.hasKey = hasKey;
+    }
+
+    public void setPosition(int x, int y) {
+        super.setX(x);
+        super.setY(y);
     }
 }

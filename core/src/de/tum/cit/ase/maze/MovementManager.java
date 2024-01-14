@@ -16,14 +16,14 @@ public class MovementManager {
         float nextY = character.getY();
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            if (!maze.isCellBlocked(nextX, nextY + 9)) {
+            if (!maze.isCellBlocked(nextX, nextY + 13)) {
                 character.moveUp();
             }
-        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) { //9+5=7+7 just different division (looks wierd otherwise)
-            if (!maze.isCellBlocked(nextX, nextY - 5)) {
+        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) { //11+3=7+7 just different division (looks wierd otherwise)
+            if (!maze.isCellBlocked(nextX, nextY - 1)) {
                 character.moveDown();
             }
-        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) { //7 is one smaller than sprite size divided by two (origin point for collusion detection is the middle)
+        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) { //7 is two smaller than sprite size divided by two (origin point for collusion detection is the middle)
             if (!maze.isCellBlocked(nextX - 7, nextY)) {
                 character.moveLeft();
             }

@@ -4,12 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.Properties;
 
 public class GameMap {
     //class to hold the tiles and layout of a map
     private GameObject[][] gameObjects;
+    private int width; //viewport
+    private int height; //viewport
 
     public GameMap(String levelFilePath) {
         try {
@@ -52,7 +56,9 @@ public class GameMap {
             if (x > maxX) maxX = x;
             if (y > maxY) maxY = y;
         }
-        return gameObjects = new GameObject [maxX + 1][maxY + 1]; // +1 because arrays are zero-based
+        width = maxX + 1; //viewport
+        height = maxY + 1; //viewport
+        return gameObjects = new GameObject [width][height];
     }
 
     //helper method to return the right object texture (wall, entry ...) for each tile type / not efficient?
@@ -87,7 +93,7 @@ public class GameMap {
             }
     }
 
-    //method to unable character to move through walls
+    //method prevent character from moving through walls
     public boolean isCellBlocked(float x, float y){
         int tileSize = 16; // size of our tiles
         float offsetX = (34 - tileSize) / 2f;
@@ -102,8 +108,30 @@ public class GameMap {
             }
         //check for walls / other non-walkable objects?(enemy)
         GameObject gameObject = gameObjects[tileX][tileY];
-        return gameObject instanceof Wall;
+        if(gameObject instanceof Wall || gameObject instanceof Entry){
+            return true;
         }
-
-
+        return false;
     }
+
+    public Point findEntry() {
+        int tileSize = 16;
+        for (int y = 0; y < gameObjects.length; y++) {
+            for (int x = 0; x < gameObjects[y].length; x++) {
+                if (gameObjects[x][y] instanceof Entry) {
+                    return new Point(x * tileSize, y * tileSize); // Point is a simple class holding x and y integers
+                }
+            }
+        }
+        return null; //if not found
+    }
+
+    //viewport
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+}
