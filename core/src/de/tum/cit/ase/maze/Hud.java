@@ -34,6 +34,7 @@ public class Hud {
     private TextureRegion fullHeart;
     private TextureRegion emptyHeart;
     private Texture objectsTexture;
+    private Table table;
     private Table heartTable;
 private boolean isTimerPaused;
 private boolean hasKey;
@@ -57,9 +58,10 @@ private boolean hasKey;
         this.character = character;
         this.key = key;
 
-        Table table = new Table();
-        table.top().right();
+        table = new Table();
+        table.right().top();
         table.setFillParent(true);
+
 
         objectsTexture = new Texture(files.internal("assets/objects.png"));
 
@@ -67,7 +69,7 @@ private boolean hasKey;
         emptyHeart = new TextureRegion(objectsTexture, 128, 0, 16, 16); // Replace with actual coordinates and size
 
         heartTable = new Table();
-        heartTable.top().center(); // Position the heart table at the top center
+       heartTable.center().top(); // Position the heart table at the top center
         heartTable.setFillParent(true);
         updateHearts(score);
 
@@ -79,15 +81,11 @@ private boolean hasKey;
 
 // Create the Label with the custom style
         timeLabel = new Label(" T I M E ", labelStyle);
-
-
-
         countdownLabel = new Label(String.format("%03d", worldTimer), labelStyle);
         scoreLabel = new Label(String.format("%02d", score), labelStyle);
 
 
-
-        table.add(timeLabel).padTop(5).padRight(20);
+        table.add(timeLabel).padTop(1).padRight(20);
         table.row();
         table.add(countdownLabel).padTop(1).padRight(20);
 
