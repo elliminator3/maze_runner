@@ -12,7 +12,7 @@ public class Enemy extends GameObject{
     private static final int FRAME_ROWS = 8;
 
     //movement
-    private static final float MOVE_INTERVAL = 1.0f; // Time interval in seconds for each move
+    private static final float MOVE_INTERVAL = 3.0f; // Time interval in seconds for each move
     private float moveTimer = MOVE_INTERVAL;
 
 

@@ -25,20 +25,21 @@ public class MovementManager {
             if (!maze.isCellBlocked(nextX, nextY + 13)) {
                 character.moveUp();
                 if(maze.collusionWithTrap(nextX,nextY+13)){ //if character steps on a spring he loses a live and starts again at his starting point
-                   Point start = maze.findEntry();
                    character.setLives(character.getLives()-1); //ToDo loselive() method in character
-                   character.setPosition(start.x, start.y);
                 }
-                if(maze.collsionWithEnemy(nextX,nextX+13)){ //ToDo klappt noch nicht!
-                    character.setLives(character.getLives()-1);
+                if(maze.collusionWithEnemy(nextX, nextY +13)){
+                    Point start = maze.findEntry();
+                    character.setPosition(start.x, start.y);
                 }
             }
         } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) { //13+1=7+7 just different division (looks wierd otherwise)
             if (!maze.isCellBlocked(nextX, nextY - 1)) {
                 character.moveDown();
                 if(maze.collusionWithTrap(nextX,nextY-1)){
-                    Point start = maze.findEntry();
                     character.setLives(character.getLives()-1);
+                }
+                if(maze.collusionWithEnemy(nextX, nextY -1)){
+                    Point start = maze.findEntry();
                     character.setPosition(start.x, start.y);
                 }
             }
@@ -46,8 +47,10 @@ public class MovementManager {
             if (!maze.isCellBlocked(nextX - 7, nextY)) {
                 character.moveLeft();
                 if(maze.collusionWithTrap(nextX - 7,nextY)){
-                    Point start = maze.findEntry();
                     character.setLives(character.getLives()-1);
+                }
+                if(maze.collusionWithEnemy(nextX -7, nextY)){
+                    Point start = maze.findEntry();
                     character.setPosition(start.x, start.y);
                 }
             }
@@ -55,8 +58,10 @@ public class MovementManager {
             if (!maze.isCellBlocked(nextX + 7, nextY)) {
                 character.moveRight();
                 if(maze.collusionWithTrap(nextX + 7,nextY)){
-                    Point start = maze.findEntry();
                     character.setLives(character.getLives()-1);
+                }
+                if(maze.collusionWithEnemy(nextX + 7, nextY)){
+                    Point start = maze.findEntry();
                     character.setPosition(start.x, start.y);
                 }
             }

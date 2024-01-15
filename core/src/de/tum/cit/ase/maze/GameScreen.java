@@ -42,8 +42,8 @@ public class GameScreen implements Screen {
         this.game = game;
 
         //initialize background and gameMap
-        background = new GameMapBackground("maps/level-1.properties");
-        gameMap = new GameMap("maps/level-1.properties");
+        background = new GameMapBackground("maps/level-5.properties");
+        gameMap = new GameMap("maps/level-5.properties");
         //find entry of the gameMap
         Point entryPoint = gameMap.findEntry();
 
@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
 
         //start camera with frame that contains the character
         camera.position.x = character.getX();
-        camera.position.y = character.getY();;
+        camera.position.y = character.getY();
 
         camera.update();
     }
@@ -135,7 +135,6 @@ public class GameScreen implements Screen {
         // Handle user input
         movementManager.handleInput();
 
-        //enemy movement
 
         //viewport
         updateCameraPosition();

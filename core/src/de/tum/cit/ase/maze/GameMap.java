@@ -3,6 +3,7 @@ package de.tum.cit.ase.maze;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.awt.*;
 import java.io.IOException;
@@ -133,14 +134,15 @@ public class GameMap {
         }
         return false;
     }
+
     //ToDo: klappt noch nicht!
-    public boolean collsionWithEnemy(float x, float y){
-        int tileSize = 16; // size of our tiles
-        int tileX = (int)(x / tileSize);
-        int tileY = (int)(y / tileSize);
-        Enemy enemy = new Enemy(tileX, tileY, "mobs.png");
-        if(enemies.contains(enemy, true)){
-            return true;
+    public boolean collusionWithEnemy(float x, float y){
+        Rectangle characterRect = new Rectangle((int)x, (int)y, 8, 8);
+        for (Enemy enemy : enemies) {
+            Rectangle enemyRect = new Rectangle((int) enemy.getX()*16, (int) enemy.getY()*16, 16, 16);
+            if (characterRect.overlaps(enemyRect)) {
+                return true;
+            }
         }
         return false;
     }
