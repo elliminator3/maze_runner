@@ -1,9 +1,8 @@
 package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
 
 import java.awt.*;
 import java.io.IOException;
@@ -15,6 +14,8 @@ public class GameMap {
     private int width; //viewport
     private int height; //viewport
 
+    private Array<Enemy> enemies = new Array<>(); //enemy movement
+
     public GameMap(String levelFilePath) {
         try {
             loadLevel(levelFilePath);
@@ -24,7 +25,7 @@ public class GameMap {
     }
 
     //loads the level configuration from a .properties file
-    private void loadLevel(String levelFilePath) throws IOException {
+    public void loadLevel(String levelFilePath) throws IOException {
         Properties props = new Properties();
         props.load(Gdx.files.internal(levelFilePath).reader());
 
@@ -39,8 +40,12 @@ public class GameMap {
             int tileType = Integer.parseInt(props.getProperty(key));
 
             //fill map with the respective tileType at the given coordinates
-            if (tileType == 0|tileType == 1|tileType == 2|tileType == 3|tileType == 4|tileType == 5) {
+            if (tileType == 0|tileType == 1|tileType == 2|tileType == 3|tileType == 5) {
                 gameObjects[x][y] = createTile(tileType, x, y);
+            }
+            else if (tileType == 4) {
+                Enemy enemy = new Enemy(x, y, "mobs.png");
+                enemies.add(enemy);
             }
         }
     }
@@ -73,7 +78,8 @@ public class GameMap {
             case 3:
                 return new Trap(x, y, "basictiles.png");
             case 4:
-                return new Enemy(x, y, "mobs.png");
+                return new Path(x, y, "basictiles.png");
+                //return new Enemy(x, y, "mobs.png");
             case 5:
                 return new Key(x, y, "objects.png");
             default:
@@ -114,6 +120,31 @@ public class GameMap {
         return false;
     }
 
+    //collusion detection with trap and enemy
+    public boolean collusionWithTrap(float x, float y){
+        int tileSize = 16; // size of our tiles
+        float offsetX = (34 - tileSize) / 2f;
+        float offsetY = (32 - tileSize) / 2f;
+        int tileX = (int)((x + offsetX) / tileSize);
+        int tileY = (int)((y + offsetY) / tileSize);
+        GameObject gameObject = gameObjects[tileX][tileY];
+        if(gameObject instanceof Trap){
+            return true;
+        }
+        return false;
+    }
+    //ToDo: klappt noch nicht!
+    public boolean collsionWithEnemy(float x, float y){
+        int tileSize = 16; // size of our tiles
+        int tileX = (int)(x / tileSize);
+        int tileY = (int)(y / tileSize);
+        Enemy enemy = new Enemy(tileX, tileY, "mobs.png");
+        if(enemies.contains(enemy, true)){
+            return true;
+        }
+        return false;
+    }
+
     public Point findEntry() {
         int tileSize = 16;
         for (int y = 0; y < gameObjects.length; y++) {
@@ -126,6 +157,12 @@ public class GameMap {
         return null; //if not found
     }
 
+
+
+    public GameObject[][] getGameObjects() {
+        return gameObjects;
+    }
+
     //viewport
     public int getWidth() {
         return width;
@@ -133,5 +170,14 @@ public class GameMap {
 
     public int getHeight() {
         return height;
+    }
+
+    //enemy movement
+    public Array<Enemy> getEnemies() {
+        return enemies;
+    }
+
+    public void setEnemies(Array<Enemy> enemies) {
+        this.enemies = enemies;
     }
 }

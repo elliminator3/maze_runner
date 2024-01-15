@@ -135,6 +135,8 @@ public class GameScreen implements Screen {
         // Handle user input
         movementManager.handleInput();
 
+        //enemy movement
+
         //viewport
         updateCameraPosition();
 
@@ -144,9 +146,16 @@ public class GameScreen implements Screen {
         game.getSpriteBatch().begin(); // Important to call this before drawing anything
 
 
-        // Draw the character
+        //draw the maze
         background.render(game.getSpriteBatch());
         gameMap.render(game.getSpriteBatch());
+
+        //enemy movement
+        for (Enemy enemy : gameMap.getEnemies()) {
+            enemy.update(delta, gameMap); // Update enemy position
+            enemy.render(game.getSpriteBatch()); // Render enemy
+        }
+        //draw character
         character.render(game.getSpriteBatch());
 
 

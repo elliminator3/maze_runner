@@ -78,6 +78,10 @@ public class Character extends GameObject{
 
     public void setLives(int lives) {
         this.lives = lives;
+        //zum Testen ob error kommt, wenn drei Leben verlohren werden
+        /*if(getLives()<=0){
+            throw new RuntimeException("no lives left");
+        }*/
     }
 
     public void setHasKey(boolean hasKey) {
