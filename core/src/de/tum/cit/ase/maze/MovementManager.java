@@ -62,6 +62,7 @@ public class MovementManager {
             }
         }
     }
+
     public void pause() {
         isPaused = true;
     }

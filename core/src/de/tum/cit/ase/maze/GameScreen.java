@@ -158,8 +158,18 @@ public class GameScreen implements Screen {
         //draw character
         character.render(game.getSpriteBatch());
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.pause();
+            pause();
+            // Pause the game and go to the menu
+            // Ensure gameScreen is not disposed
+            game.goToMenu();
+        }
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
+        hud.stage.act(delta);
+        hud.stage.draw();
+
     }
 
     @Override
@@ -194,13 +204,22 @@ public class GameScreen implements Screen {
         gamePort.update(width,height); //Mario
         camera.update();*/
     }
-
+    public void update(float dt){
+        if(!hud.isGameOver()) {
+            hud.update(dt);
+            movementManager.handleInput();
+        }
+    }
     @Override
     public void pause() {
+        movementManager.pause();
+        hud.pauseTimer();
     }
 
     @Override
     public void resume() {
+        movementManager.resume();
+        hud.resumeTimer();
     }
 
     @Override
