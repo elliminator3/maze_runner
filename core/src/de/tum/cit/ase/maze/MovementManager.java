@@ -21,9 +21,11 @@ public class MovementManager {
         float nextX = character.getX();
         float nextY = character.getY();
 
+        boolean moved = false;
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             if (!maze.isCellBlocked(nextX, nextY + 13)) {
                 character.moveUp();
+
                 if(maze.collusionWithTrap(nextX,nextY+13)){ //if character steps on a spring he loses a live and starts again at his starting point
                    character.setLives(character.getLives()-1); //ToDo loselive() method in character
                 }
@@ -66,6 +68,11 @@ public class MovementManager {
                 }
             }
         }
+
+        if (moved) {
+            character.updateAnimationStateTime(Gdx.graphics.getDeltaTime());
+        } else {
+            character.resetAnimationStateTime();} // Reset state time if not moving
     }
 
     public void pause() {

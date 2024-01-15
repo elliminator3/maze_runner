@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.badlogic.gdx.graphics.g2d.Animation;
 
+import javax.swing.plaf.nimbus.State;
 import java.awt.*;
 
 public class Character extends GameObject{
@@ -21,6 +22,13 @@ public class Character extends GameObject{
     private float height;
     private Key key;
     private Rectangle boundingRectangle;
+    private Animation<TextureRegion> upAnimation, downAnimation, leftAnimation, rightAnimation;
+    private Animation<TextureRegion> currentAnimation;
+
+    private float stateTime;
+    private float speed = 60;
+
+
 
 
     // Additional attributes to handle animations
@@ -33,6 +41,7 @@ public class Character extends GameObject{
         this.lives = lives;
         this.hasKey = false;
         this.key = null;
+
         //boundingRectangle = new Rectangle(x, y, getWidth(), getHeight());
 
         // Split the sprite sheet into individual frames
@@ -42,13 +51,20 @@ public class Character extends GameObject{
                 characterSheet.getHeight() / FRAME_ROWS);
 
         // Assuming you want the first frame of the first animation row
-        currentFrame = tmp[0][0];
+        upAnimation = new Animation<>(0.1f, tmp[2]); // Assuming the idle frame for 'up' is the first frame of the third row
+        downAnimation = new Animation<>(0.1f, tmp[0]);
+        leftAnimation = new Animation<>(0.1f, tmp[3]);
+        rightAnimation = new Animation<>(0.1f, tmp[1]);
+        currentAnimation = downAnimation;
+
+        stateTime = 0f;
     }
 
     //specifies how to draw the character on the screen using a SpriteBatch
     @Override
     public void render(SpriteBatch batch) {
-        batch.draw(currentFrame, super.getX(), super.getY());
+        currentFrame = currentAnimation.getKeyFrame(stateTime, true);  // Get current frame based on the state time
+        batch.draw(currentFrame, getX(), getY());  // Draw at character's current position
     }
 
     @Override
@@ -56,16 +72,31 @@ public class Character extends GameObject{
         //not needed?
     }
 
-    //Movement, missing: collusion detection and continuous movement
-    public void moveUp(){
-        super.setY(super.getY()+1);
+    public void updateAnimationStateTime(float deltaTime) {
+        stateTime += deltaTime;
     }
-    public void moveDown(){super.setY(super.getY()-1);}
-    public void moveRight(){
-        super.setX(super.getX()+1);
+
+    // Movement methods, collusion missing?
+    public void moveUp() {
+        setY(getY() + speed * Gdx.graphics.getDeltaTime());
+        currentAnimation = upAnimation;
     }
-    public void moveLeft(){
-        super.setX(super.getX()-1);
+    public void moveDown() {
+        setY(getY() - speed * Gdx.graphics.getDeltaTime());
+        currentAnimation = downAnimation;
+    }
+    public void moveRight() {
+        setX(getX() + speed * Gdx.graphics.getDeltaTime());
+        currentAnimation = rightAnimation;
+    }
+    public void moveLeft() {
+        setX(getX() - speed * Gdx.graphics.getDeltaTime());
+        currentAnimation = leftAnimation;
+
+    }
+
+    public void resetAnimationStateTime() {
+        stateTime = 0f;
     }
 
     public int getLives() {
