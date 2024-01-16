@@ -25,10 +25,10 @@ public class Character extends GameObject{
     private Hud hud;
     private Animation<TextureRegion> upAnimation, downAnimation, leftAnimation, rightAnimation;
     private Animation<TextureRegion> currentAnimation;
-
+    private GameMap maze;
     private float stateTime;
     private float speed = 60;
-
+    private TextureRegion keyFrame;
 
 
 
@@ -38,16 +38,12 @@ public class Character extends GameObject{
     private static final int FRAME_ROWS = 8; // Number of rows in the sprite sheet
 
 
-    public Character(float x, float y, String texturePath, int lives) {
+    public Character(float x, float y, String texturePath, int lives, GameMap maze) {
         super(x, y, texturePath);
         this.hasKey = false;
         this.key = null;
         this.lives = lives;
-
-
-
-
-        //boundingRectangle = new Rectangle(x, y, getWidth(), getHeight());
+        this.maze = maze;
 
         // Split the sprite sheet into individual frames
         Texture characterSheet = new Texture(Gdx.files.internal(texturePath));
@@ -55,6 +51,13 @@ public class Character extends GameObject{
                 characterSheet.getWidth() / FRAME_COLS,
                 characterSheet.getHeight() / FRAME_ROWS);
 
+        Texture objectSheet = new Texture(Gdx.files.internal(texturePath));
+        TextureRegion[][] tmp2 = TextureRegion.split(characterSheet,
+                objectSheet.getWidth() / 33,
+                objectSheet.getHeight() / 20);
+        keyFrame = tmp2[16][5];
+
+        boundingRectangle = new Rectangle(x, y, getWidth(), getHeight());
         // Assuming you want the first frame of the first animation row
         upAnimation = new Animation<>(0.1f, tmp[2]); // Assuming the idle frame for 'up' is the first frame of the third row
         downAnimation = new Animation<>(0.1f, tmp[0]);
@@ -122,6 +125,19 @@ public class Character extends GameObject{
             }
         }
     }
+    public float getWidth() {
+        if (keyFrame != null) {
+            return keyFrame.getRegionWidth();
+        }
+        return 0; // Return a default width if keyFrame is null
+    }
+
+    public float getHeight() {
+        if (keyFrame != null) {
+            return keyFrame.getRegionHeight();
+        }
+        return 0; // Return a default height if keyFrame is null
+    }
 
 
     public boolean hasKey() {
@@ -143,6 +159,14 @@ public class Character extends GameObject{
 
     public Rectangle getBoundingRectangle() {
         return boundingRectangle;
+    }
+    public void checkForKeyCollision(Key key) {
+        if (!key.isCollected() && getBoundingRectangle().overlaps(key.getBoundingRectangle())) {
+            key.collect(maze);
+            if (hud != null) {
+                hud.showKeyCollected();
+            }
+        }
     }
     /*
     public void update(float dt) {

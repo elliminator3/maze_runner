@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.badlogic.gdx.math.Rectangle;
 
-public class Key extends GameObject{
+public class Key extends GameObject {
 
     // Additional attributes to handle animation
     private TextureRegion currentFrame;
@@ -38,21 +38,28 @@ public class Key extends GameObject{
     public float getHeight() {
         return currentFrame.getRegionHeight();
     }
+
     public Rectangle getBoundingRectangle() {
         return boundingRectangle;
     }
+
     public boolean isCollected() {
         return isCollected;
     }
 
     // Add a method to collect the key
-    public void collect() {
-        isCollected = true;
+    public void collect(GameMap gameMap) {
+        // Remove the key from the map's gameObjects array
+        gameMap.removeKey(this);
     }
+
     @Override
     public void render(SpriteBatch batch) {
-        batch.draw(currentFrame, super.getX(), super.getY());
+        if (!isCollected) {
+            batch.draw(currentFrame, super.getX(), super.getY());
+        }
     }
+
     public void render(SpriteBatch batch, float x, float y) {
         batch.draw(currentFrame, x, y);
     }

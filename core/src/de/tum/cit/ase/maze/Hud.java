@@ -1,5 +1,6 @@
 package de.tum.cit.ase.maze;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -36,6 +37,10 @@ private boolean isTimerPaused;
 private boolean hasKey;
     private Character character; // Pass the Character object to the Hud
     private Key key;
+    private Image keyImage; // Image for the collected key
+    private TextureRegion keyGraphic; // Texture for the key graphic
+    private static final int FRAME_COLS = 33; // Number of columns in the sprite sheet
+    private static final int FRAME_ROWS = 20;
 
     Label countdownLabel;
     Label scoreLabel;
@@ -106,6 +111,16 @@ private boolean hasKey;
         gameOverTable.add(gameOverLabel).expand().center();
         gameOverTable.setVisible(false); // Initially hidden
 
+
+        //key is nine (looks a bit like a key)
+        keyGraphic = new TextureRegion(objectsTexture, 80, 256, 16, 16); // Replace with actual coordinates and size
+
+        // Initialize the key image but keep it hidden initially
+        keyImage = new Image(keyGraphic);
+        keyImage.setVisible(false);
+        keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight()-5); // Position at the upper left corner
+        stage.addActor(keyImage);
+
         stage.addActor(heartTable);
         stage.addActor(gameOverTable);
         stage.addActor(table);
@@ -143,6 +158,10 @@ private boolean hasKey;
     public void showGameOverScreen() {
         isGameOver = true;
         gameOverTable.setVisible(true);
+    }
+
+    public void showKeyCollected() {
+        keyImage.setVisible(true);
     }
 
     public int setScore(int newScore) {

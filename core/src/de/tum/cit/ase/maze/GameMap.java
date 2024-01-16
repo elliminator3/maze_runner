@@ -93,12 +93,14 @@ public class GameMap {
         int tileSize = 16;
             for (int y = 0; y < gameObjects.length; y++) {
                 for (int x = 0; x < gameObjects[y].length; x++) {
-                    if (gameObjects[x][y] != null) { //don't try to render null objects
-                        gameObjects[x][y].render(batch, x * tileSize, y * tileSize);
+                    GameObject gameObject = gameObjects[x][y];
+                    if (gameObject != null) {
+                        gameObject.render(batch, x * tileSize, y * tileSize);
+                    }
                     }
                 }
             }
-    }
+
 
     //method prevent character from moving through walls
     public boolean isCellBlocked(float x, float y){
@@ -135,6 +137,20 @@ public class GameMap {
         return false;
     }
 
+    public boolean collusionWithKey(float x, float y){
+        int tileSize = 16; // size of our tiles
+        float offsetX = (34 - tileSize) / 2f;
+        float offsetY = (32 - tileSize) / 2f;
+        int tileX = (int)((x + offsetX) / tileSize);
+        int tileY = (int)((y + offsetY) / tileSize);
+        GameObject gameObject = gameObjects[tileX][tileY];
+        if(gameObject instanceof Key){
+            return true;
+        }
+        return false;
+    }
+
+
     //ToDo: klappt noch nicht!
     public boolean collusionWithEnemy(float x, float y){
         Rectangle characterRect = new Rectangle((int)x, (int)y, 8, 8);
@@ -160,9 +176,28 @@ public class GameMap {
     }
 
 
+    public Point findKey() {
+        int tileSize = 16;
+        for (int y = 0; y < gameObjects.length; y++) {
+            for (int x = 0; x < gameObjects[y].length; x++) {
+                if (gameObjects[x][y] instanceof Key) {
+                    return new Point(x * tileSize, y * tileSize); // Point is a simple class holding x and y integers
+                }
+            }
+        }
+        return null; //if not found
+    }
 
     public GameObject[][] getGameObjects() {
         return gameObjects;
+    }
+
+    public void removeKey(Key key) {
+        // Find the position of the key in the gameObjects array and set it to null
+        int tileSize = 16;
+        int x = (int) (key.getX() / tileSize);
+        int y = (int) (key.getY() / tileSize);
+        gameObjects[x][y] = null;
     }
 
     //viewport

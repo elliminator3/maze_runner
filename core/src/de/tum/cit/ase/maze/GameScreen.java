@@ -29,7 +29,7 @@ public class GameScreen implements Screen {
     private GameMap gameMap;
     private GameMapBackground background;
     private Hud hud;
-
+private Key key;
     private Viewport gamePort;
 
 
@@ -47,19 +47,20 @@ public class GameScreen implements Screen {
         gameMap = new GameMap("maps/level-5.properties");
         //find entry of the gameMap
         Point entryPoint = gameMap.findEntry();
+        Point keyPoint = gameMap.findKey();
 
-
-
+//hud //ToDo (look in resize method)
+        hud = new Hud(game.getSpriteBatch(), character); //Mario
         //initialize character and camera
-        character = new Character(entryPoint.x, entryPoint.y, "character.png", 5);
-        movementManager = new MovementManager(character, gameMap, hud);
+        character = new Character(entryPoint.x, entryPoint.y, "character.png", 5, gameMap);
+        key = new Key(keyPoint.x, keyPoint.y,"objects.png"); // Create the Key instance
+        movementManager = new MovementManager(character, gameMap, hud, key);
         initializeCamera();
         camera.position.set(character.getX(), character.getY(), 0); //viewport //tileSize
         //screenViewport for viewport requirements
         gamePort = new ScreenViewport(camera);
 
-        //hud //ToDo (look in resize method)
-        hud = new Hud(game.getSpriteBatch(), character); //Mario
+
 character.setHud(hud);
         // Get the font from the game's skin
         font = game.getSkin().getFont("font");
@@ -127,9 +128,7 @@ character.setHud(hud);
     @Override
     public void render(float delta) {
         // Check for escape key press to go back to the menu
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.goToMenu();
-        }
+
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
         hud.stage.act(delta);
@@ -238,6 +237,7 @@ character.setHud(hud);
     public void dispose() {
         //dispose assets like textures when you're done with them
         character.getTexture().dispose();
+        key.getTexture().dispose();
     }
 
     // Additional methods and logic can be added as needed for the game screen
