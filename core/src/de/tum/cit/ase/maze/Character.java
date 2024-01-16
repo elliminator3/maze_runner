@@ -22,6 +22,7 @@ public class Character extends GameObject{
     private float height;
     private Key key;
     private Rectangle boundingRectangle;
+    private Hud hud;
     private Animation<TextureRegion> upAnimation, downAnimation, leftAnimation, rightAnimation;
     private Animation<TextureRegion> currentAnimation;
 
@@ -36,11 +37,15 @@ public class Character extends GameObject{
     private static final int FRAME_COLS = 16; // Number of columns in the sprite sheet
     private static final int FRAME_ROWS = 8; // Number of rows in the sprite sheet
 
+
     public Character(float x, float y, String texturePath, int lives) {
         super(x, y, texturePath);
-        this.lives = lives;
         this.hasKey = false;
         this.key = null;
+        this.lives = lives;
+
+
+
 
         //boundingRectangle = new Rectangle(x, y, getWidth(), getHeight());
 
@@ -59,6 +64,7 @@ public class Character extends GameObject{
 
         stateTime = 0f;
     }
+
 
     //specifies how to draw the character on the screen using a SpriteBatch
     @Override
@@ -102,6 +108,21 @@ public class Character extends GameObject{
     public int getLives() {
         return lives;
     }
+    public void setHud(Hud hud) {
+        this.hud = hud;
+    }
+    public void loseLife() {
+        if (lives > 0) {
+            lives--;
+            if (hud != null) {
+                hud.setScore(lives);  // This will also update the hearts on the HUD
+                if (lives == 0) {
+                    hud.showGameOverScreen();
+                }
+            }
+        }
+    }
+
 
     public boolean hasKey() {
         return hasKey;

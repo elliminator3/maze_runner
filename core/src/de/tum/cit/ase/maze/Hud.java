@@ -10,14 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.ase.maze.MazeRunnerGame;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import java.awt.*;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import static com.badlogic.gdx.Gdx.files;
@@ -47,10 +43,10 @@ private boolean hasKey;
 
 
 
-    public Hud(SpriteBatch sb) {
+    public Hud(SpriteBatch sb, Character character) {
         worldTimer = 300;
         timeCount = 0;
-        score = 1;
+        score = 5;
         viewport = new FitViewport(MazeRunnerGame.V_WIDTH, MazeRunnerGame.V_HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, sb);
         isGameOver = false;
@@ -114,6 +110,8 @@ private boolean hasKey;
         stage.addActor(gameOverTable);
         stage.addActor(table);
     }
+
+
     public void pauseTimer(){
         isTimerPaused = true;
     }
@@ -131,7 +129,7 @@ private boolean hasKey;
 
                 if (worldTimer <= 0) {
                     isGameOver = true;
-                    gameOverTable.setVisible(true);
+                    showGameOverScreen();
                 }
             }
         }
@@ -142,21 +140,32 @@ private boolean hasKey;
             // Optionally, you can perform additional actions when the key is obtained
         } */
     }
+    public void showGameOverScreen() {
+        isGameOver = true;
+        gameOverTable.setVisible(true);
+    }
 
-    public void setScore(int newScore) {
+    public int setScore(int newScore) {
         score = newScore;
         updateHearts(score); // Update hearts display whenever the score changes
+        return newScore;
     }
+
     public void updateHearts(int health) {
-        heartTable.clear();
-        for (int i = 0; i < 5; i++) {
-            // For each heart, check if it should be full or empty
-            Drawable heartDrawable = i < health ? new TextureRegionDrawable(fullHeart) : new TextureRegionDrawable(emptyHeart);
-            Image heartImage = new Image(heartDrawable);
-            heartTable.add(heartImage).padTop(2);
+            heartTable.clear();
+            for (int i = 0; i < health; i++) {
+                Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
+                Image heartImage = new Image(heartDrawable);
+                heartTable.add(heartImage).padTop(2);
+            }
+            for (int i = health; i < 5; i++) {
+                Drawable heartDrawable = new TextureRegionDrawable(emptyHeart);
+                Image heartImage = new Image(heartDrawable);
+                heartTable.add(heartImage).padTop(2);
+            }
+            stage.draw();
         }
-        stage.draw();
-    }
+
 
 
 

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -47,17 +48,19 @@ public class GameScreen implements Screen {
         //find entry of the gameMap
         Point entryPoint = gameMap.findEntry();
 
+
+
         //initialize character and camera
-        character = new Character(entryPoint.x, entryPoint.y, "character.png", 3);
-        movementManager = new MovementManager(character, gameMap);
+        character = new Character(entryPoint.x, entryPoint.y, "character.png", 5);
+        movementManager = new MovementManager(character, gameMap, hud);
         initializeCamera();
         camera.position.set(character.getX(), character.getY(), 0); //viewport //tileSize
         //screenViewport for viewport requirements
         gamePort = new ScreenViewport(camera);
 
         //hud //ToDo (look in resize method)
-        hud = new Hud(game.getSpriteBatch()); //Mario
-
+        hud = new Hud(game.getSpriteBatch(), character); //Mario
+character.setHud(hud);
         // Get the font from the game's skin
         font = game.getSkin().getFont("font");
     }
@@ -131,6 +134,7 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
         hud.stage.act(delta);
         hud.stage.draw();
+        hud.update(delta);
 
         // Handle user input
         movementManager.handleInput();
