@@ -7,15 +7,17 @@ import com.badlogic.gdx.math.Rectangle;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 public class GameMap {
     //class to hold the tiles and layout of a map
     private GameObject[][] gameObjects;
-    private int width; //viewport
-    private int height; //viewport
-
+    private int width;
+    private int height;
+    private Path path;
     private Array<Enemy> enemies = new Array<>(); //enemy movement
+    private Array<Point> exitPoints = new Array<>(); //exitPoints
 
     public GameMap(String levelFilePath) {
         try {
@@ -23,6 +25,7 @@ public class GameMap {
         } catch (IOException e) {
             Gdx.app.log("Level Load Error", "Failed to load level file: " + levelFilePath, e);
         }
+        path = new Path(0, 0, "basictiles.png");
     }
 
     //loads the level configuration from a .properties file
@@ -69,37 +72,38 @@ public class GameMap {
 
     //helper method to return the right object texture (wall, entry ...) for each tile type / not efficient?
     public GameObject createTile(int tileType, float x, float y) {
-        switch (tileType) {
-            case 0:
-                return new Wall(x, y, "basictiles.png");
-            case 1:
-                return new Entry(x, y, "basictiles.png");
-            case 2:
-                return new Exit(x, y, "things.png");
-            case 3:
-                return new Trap(x, y, "basictiles.png");
-            case 4:
-                return new Path(x, y, "basictiles.png");
-                //return new Enemy(x, y, "mobs.png");
-            case 5:
-                return new Key(x, y, "objects.png");
-            default:
-                return null;
-        }
+        return switch (tileType) {
+            case 0 -> new Wall(x, y, "basictiles.png");
+            case 1 -> new Entry(x, y, "basictiles.png");
+            case 2 -> new Exit(x, y, "things.png");
+            case 3 -> new Trap(x, y, "basictiles.png");
+            case 4 -> new Path(x, y, "basictiles.png"); //tileType enemy is handled separately
+            case 5 -> new Key(x, y, "objects.png");
+            default -> null;
+        };
     }
 
     //method for drawing the maze
     public void render (SpriteBatch batch){
         int tileSize = 16;
-            for (int y = 0; y < gameObjects.length; y++) {
-                for (int x = 0; x < gameObjects[y].length; x++) {
-                    GameObject gameObject = gameObjects[x][y];
-                    if (gameObject != null) {
-                        gameObject.render(batch, x * tileSize, y * tileSize);
-                    }
-                    }
+        for (int y = 0; y < gameObjects.length; y++) {
+            for (int x = 0; x < gameObjects[y].length; x++) {
+                GameObject gameObject = gameObjects[x][y];
+                if (gameObject != null) {
+                    gameObject.render(batch, x * tileSize, y * tileSize);
                 }
             }
+        }
+    }
+
+    public void renderBackground(SpriteBatch batch){
+        int tileSize = 16;
+        for (int y = 0; y < gameObjects.length; y++) {
+            for (int x = 0; x < gameObjects[y].length; x++) {
+                    path.render(batch, x * tileSize, y * tileSize); //draws the background with path texture
+            }
+        }
+    }
 
 
     //method prevent character from moving through walls
@@ -107,6 +111,7 @@ public class GameMap {
         int tileSize = 16; // size of our tiles
         float offsetX = (34 - tileSize) / 2f;
         float offsetY = (32 - tileSize) / 2f;
+
         // Calculate the offset to center the 16x16 collision box within the 34x32 sprite
         int tileX = (int)((x + offsetX) / tileSize);
         int tileY = (int)((y + offsetY) / tileSize);
@@ -115,6 +120,7 @@ public class GameMap {
         if (tileX < 0 || tileX > gameObjects.length || tileY < 0 || tileY > gameObjects[0].length) {
             return true;
             }
+
         //check for walls / other non-walkable objects?(enemy)
         GameObject gameObject = gameObjects[tileX][tileY];
         if(gameObject instanceof Wall || gameObject instanceof Entry){
@@ -151,11 +157,12 @@ public class GameMap {
     }
 
 
-    //ToDo: klappt noch nicht!
+    //ToDo: auf tatsächliche Berührung anpassen
     public boolean collusionWithEnemy(float x, float y){
-        Rectangle characterRect = new Rectangle((int)x, (int)y, 8, 8);
+        Rectangle characterRect = new Rectangle((int)x, (int)y + 6, 16, 16); //tileSize //center
+
         for (Enemy enemy : enemies) {
-            Rectangle enemyRect = new Rectangle((int) enemy.getX()*16, (int) enemy.getY()*16, 16, 16);
+            Rectangle enemyRect = new Rectangle((int) enemy.getX()*16, (int) enemy.getY()*16, 16, 16); //tileSize //repositioning
             if (characterRect.overlaps(enemyRect)) {
                 return true;
             }
@@ -188,16 +195,24 @@ public class GameMap {
         return null; //if not found
     }
 
-    public GameObject[][] getGameObjects() {
-        return gameObjects;
-    }
-
     public void removeKey(Key key) {
         // Find the position of the key in the gameObjects array and set it to null
         int tileSize = 16;
         int x = (int) (key.getX() / tileSize);
         int y = (int) (key.getY() / tileSize);
         gameObjects[x][y] = null;
+    }
+
+    //ExitPoints
+    public Array<Point> findExitPoints() {
+        for (int y = 0; y < gameObjects.length; y++) {
+            for (int x = 0; x < gameObjects[y].length; x++) {
+                if (gameObjects[x][y] instanceof Exit) {
+                    exitPoints.add(new Point(x , y));
+                }
+            }
+        }
+        return exitPoints;
     }
 
     //viewport

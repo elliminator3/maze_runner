@@ -6,20 +6,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.utils.Array;
 
-import javax.swing.plaf.nimbus.State;
 import java.awt.*;
 
 public class Character extends GameObject{
     private int lives;
     private boolean hasKey;
-    private GameObject gameObject;
-    private float width;
-    private float height;
     private Key key;
     private Rectangle boundingRectangle;
     private Hud hud;
@@ -29,6 +23,8 @@ public class Character extends GameObject{
     private float stateTime;
     private float speed = 60;
     private TextureRegion keyFrame;
+    private float trapCooldownTime = 0; //cooldown
+    private final float trapCooldownDuration = 1.0f; // 1 second cooldown
 
 
 
@@ -85,7 +81,7 @@ public class Character extends GameObject{
         stateTime += deltaTime;
     }
 
-    // Movement methods, collusion missing?
+    // Movement methods
     public void moveUp() {
         setY(getY() + speed * Gdx.graphics.getDeltaTime());
         currentAnimation = upAnimation;
@@ -114,9 +110,12 @@ public class Character extends GameObject{
     public void setHud(Hud hud) {
         this.hud = hud;
     }
+
+    //ToDo: why does sometimes more than one live get subtracted?
     public void loseLife() {
-        if (lives > 0) {
+        if (trapCooldownTime <= 0 &&lives > 0) { //cooldown
             lives--;
+            trapCooldownTime = trapCooldownDuration; //cooldown
             if (hud != null) {
                 hud.setScore(lives);  // This will also update the hearts on the HUD
                 if (lives == 0) {
@@ -125,6 +124,7 @@ public class Character extends GameObject{
             }
         }
     }
+
     public float getWidth() {
         if (keyFrame != null) {
             return keyFrame.getRegionWidth();
@@ -160,14 +160,18 @@ public class Character extends GameObject{
     public Rectangle getBoundingRectangle() {
         return boundingRectangle;
     }
+
     public void checkForKeyCollision(Key key) {
         if (!key.isCollected() && getBoundingRectangle().overlaps(key.getBoundingRectangle())) {
             key.collect(maze);
+            //character collects key
+            hasKey = true;
             if (hud != null) {
                 hud.showKeyCollected();
             }
         }
     }
+
     /*
     public void update(float dt) {
         // Other character update code
@@ -180,4 +184,12 @@ public class Character extends GameObject{
             key = null;
               }
     }*/
+
+    //cooldown
+    public void update(float deltaTime) {
+        if (trapCooldownTime > 0) {
+            trapCooldownTime -= deltaTime;
+        }
+    }
+
 }

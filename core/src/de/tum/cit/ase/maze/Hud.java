@@ -1,6 +1,5 @@
 package de.tum.cit.ase.maze;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -33,14 +32,12 @@ public class Hud {
     private Texture objectsTexture;
     private Table table;
     private Table heartTable;
-private boolean isTimerPaused;
-private boolean hasKey;
+    private boolean isTimerPaused;
+    private boolean hasKey;
     private Character character; // Pass the Character object to the Hud
     private Key key;
     private Image keyImage; // Image for the collected key
     private TextureRegion keyGraphic; // Texture for the key graphic
-    private static final int FRAME_COLS = 33; // Number of columns in the sprite sheet
-    private static final int FRAME_ROWS = 20;
 
     Label countdownLabel;
     Label scoreLabel;
@@ -70,7 +67,7 @@ private boolean hasKey;
         emptyHeart = new TextureRegion(objectsTexture, 128, 0, 16, 16); // Replace with actual coordinates and size
 
         heartTable = new Table();
-       heartTable.center().top(); // Position the heart table at the top center
+        heartTable.center().top(); // Position the heart table at the top center
         heartTable.setFillParent(true);
         updateHearts(score);
 
@@ -192,7 +189,7 @@ private boolean hasKey;
         return isGameOver;
     }
 
- //wofür genau brauche ich das?
+    //wofÃ¼r genau brauche ich das?
     public void dispose() {
         objectsTexture.dispose();
         stage.dispose();}

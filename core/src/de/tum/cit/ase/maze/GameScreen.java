@@ -5,10 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -22,14 +19,12 @@ public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
     private OrthographicCamera camera;
-    private final BitmapFont font;
     private Character character;
     private MovementManager movementManager; // The movement manager
     private float sinusInput = 0f;
     private GameMap gameMap;
-    private GameMapBackground background;
     private Hud hud;
-private Key key;
+    private Key key;
     private Viewport gamePort;
 
 
@@ -42,9 +37,8 @@ private Key key;
 
         this.game = game;
 
-        //initialize background and gameMap
-        background = new GameMapBackground("maps/level-5.properties");
-        gameMap = new GameMap("maps/level-5.properties");
+        //initialize gameMap
+        gameMap = new GameMap("maps/level-2.properties");
         //find entry of the gameMap
         Point entryPoint = gameMap.findEntry();
         Point keyPoint = gameMap.findKey();
@@ -56,14 +50,14 @@ private Key key;
         key = new Key(keyPoint.x, keyPoint.y,"objects.png"); // Create the Key instance
         movementManager = new MovementManager(character, gameMap, hud, key);
         initializeCamera();
-        camera.position.set(character.getX(), character.getY(), 0); //viewport //tileSize
+        camera.position.set(character.getX(), character.getY(), 0); //viewport
         //screenViewport for viewport requirements
         gamePort = new ScreenViewport(camera);
 
 
-character.setHud(hud);
+        character.setHud(hud);
         // Get the font from the game's skin
-        font = game.getSkin().getFont("font");
+        BitmapFont font = game.getSkin().getFont("font");
     }
 
     //viewport requirements 1
@@ -129,7 +123,6 @@ character.setHud(hud);
     public void render(float delta) {
         // Check for escape key press to go back to the menu
 
-
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
         hud.stage.act(delta);
         hud.stage.draw();
@@ -137,7 +130,10 @@ character.setHud(hud);
 
         // Handle user input
         movementManager.handleInput();
+        movementManager.handleEnemyCollusion();
 
+        //cooldown
+        character.update(delta);
 
         //viewport
         updateCameraPosition();
@@ -149,7 +145,7 @@ character.setHud(hud);
 
 
         //draw the maze
-        background.render(game.getSpriteBatch());
+        gameMap.renderBackground(game.getSpriteBatch());
         gameMap.render(game.getSpriteBatch());
 
         //enemy movement
@@ -194,18 +190,9 @@ character.setHud(hud);
         hud.stage.getViewport().update(width, height, true);
         hud.stage.getViewport().apply();
         hud.stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        hud.stage.getViewport().getCamera().update();
+        hud.stage.getViewport().getCamera().update();*/
     }
 
-        /* unser altes Zeug: viewport
-        gamePort.update(width, height);
-        updateCamera();
-        updateCameraBounds();
-
-        /*camera.setToOrtho(false);
-        gamePort.update(width,height); //Mario
-        camera.update();*/
-    }
     public void update(float dt){
         if(!hud.isGameOver()) {
             hud.update(dt);
@@ -240,5 +227,4 @@ character.setHud(hud);
         key.getTexture().dispose();
     }
 
-    // Additional methods and logic can be added as needed for the game screen
 }

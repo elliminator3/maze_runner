@@ -68,6 +68,7 @@ public class MenuScreen implements Screen {
                 Gdx.app.exit(); // Exit the application
             }
         });
+
     }
 
     @Override
@@ -75,6 +76,7 @@ public class MenuScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the screen
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f)); // Update the stage
         stage.draw(); // Draw the stage
+
     }
 
     @Override

@@ -30,4 +30,4 @@ public class Wall extends GameObject{
         batch.draw(currentFrame, x, y);
     }
 
-} //10.01.
+}

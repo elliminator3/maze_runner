@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public abstract class GameObject {
     private float x;
     private float y;
+
     protected Texture texture; //represents an image loaded into memory that can be drawn or rendered onto the screen
 
     public GameObject(float x, float y, String texturePath) {
