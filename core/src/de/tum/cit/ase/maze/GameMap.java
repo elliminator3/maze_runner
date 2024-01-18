@@ -1,13 +1,13 @@
 package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.Rectangle;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 public class GameMap {
@@ -21,7 +21,8 @@ public class GameMap {
 
     public GameMap(String levelFilePath) {
         try {
-            loadLevel(levelFilePath);
+            FileHandle fileHandle = Gdx.files.internal(levelFilePath);
+            loadLevel(fileHandle);
         } catch (IOException e) {
             Gdx.app.log("Level Load Error", "Failed to load level file: " + levelFilePath, e);
         }
@@ -29,9 +30,9 @@ public class GameMap {
     }
 
     //loads the level configuration from a .properties file
-    public void loadLevel(String levelFilePath) throws IOException {
+    public void loadLevel(FileHandle levelFilePath) throws IOException {
         Properties props = new Properties();
-        props.load(Gdx.files.internal(levelFilePath).reader());
+        props.load(levelFilePath.reader());
 
         // Calculate map size
         gameObjects = calculateMapSize(props);

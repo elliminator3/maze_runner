@@ -50,6 +50,17 @@ public class MenuScreen implements Screen {
             }
         });
 
+        //load map button //fileChooser
+        TextButton loadMapButton = new TextButton("Load Map", game.getSkin());
+        table.add(loadMapButton).width(500).row(); // Adjust the width as necessary
+        loadMapButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.chooseMazeFile(); // Open the file chooser when the button is clicked
+            }
+        });
+
+
         TextButton continueButton = new TextButton("Continue Game", game.getSkin());
         table.add(continueButton).width(500).row(); // makes button appear and sets width
         continueButton.addListener(new ChangeListener() {

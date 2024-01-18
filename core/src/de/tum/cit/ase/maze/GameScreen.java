@@ -37,8 +37,19 @@ public class GameScreen implements Screen {
 
         this.game = game;
 
+        //default values
+        String mapPath = game.getMapFilePath();
+        if (mapPath != null && !mapPath.isEmpty()) {
+            gameMap = loadNewMap(mapPath);
+        } else {
+            gameMap = loadNewMap("maps/level-1.properties"); //ToDo: how should we handle this?
+        }
+
+        gamePort = new ScreenViewport(camera);
+
+
         //initialize gameMap
-        gameMap = new GameMap("maps/level-2.properties");
+        //gameMap = new GameMap("maps/level-2.properties");
         //find entry of the gameMap
         Point entryPoint = gameMap.findEntry();
         Point keyPoint = gameMap.findKey();
@@ -227,4 +238,15 @@ public class GameScreen implements Screen {
         key.getTexture().dispose();
     }
 
+    public GameMap getGameMap() {
+        return gameMap;
+    }
+
+    //fileChooser
+    public GameMap loadNewMap(String filePath) {
+        // Clear current state if needed, like resetting character position, enemies, etc.
+        // ...
+        // Load the new map
+        return gameMap = new GameMap(filePath);
+    }
 }

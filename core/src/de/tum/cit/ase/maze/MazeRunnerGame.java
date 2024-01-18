@@ -19,6 +19,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Align;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
+import games.spooky.gdx.nativefilechooser.NativeFileChooserIntent;
+
+import java.io.IOException;
 
 
 /**
@@ -41,6 +44,9 @@ public class MazeRunnerGame extends Game {
 
     // Character animation downwards
     private Animation<TextureRegion> characterDownAnimation;
+    private final NativeFileChooser fileChooser; //fileChooser
+    private GameMap gameMap; //fileChooser
+    private String mapFilePath; //fileChooser
 
     /**
      * Constructor for MazeRunnerGame.
@@ -49,23 +55,9 @@ public class MazeRunnerGame extends Game {
      */
     public MazeRunnerGame(NativeFileChooser fileChooser) {
         super();
-        /*fileChooser.chooseFile(new NativeFileChooserConfiguration(), new NativeFileChooserCallback() {
-            @Override
-            public void onFileChosen(FileHandle file) {
-
-            }
-
-            @Override
-            public void onCancellation() {
-
-            }
-
-            @Override
-            public void onError(Exception exception) {
-
-            }
-        });as attribute in game plus getter*/
+        this.fileChooser = fileChooser;
     }
+
 
     /**
      * Called when the game is created. Initializes the SpriteBatch and Skin.
@@ -195,5 +187,45 @@ public class MazeRunnerGame extends Game {
 
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
+    }
+
+    public String getMapFilePath() {
+        return mapFilePath;
+    }
+    public void setMapFilePath(String mapFilePath) {
+        this.mapFilePath = mapFilePath;
+    }
+
+    public void chooseMazeFile() {
+        var fileChooserConfig = new NativeFileChooserConfiguration();
+        fileChooserConfig.title = "Pick a maze file";
+        fileChooserConfig.intent = NativeFileChooserIntent.OPEN;
+        fileChooserConfig.nameFilter = (file, name) -> name.endsWith("properties");
+
+
+        FileHandle initialDirectory = Gdx.files.absolute(System.getProperty("user.home"));
+        fileChooserConfig.directory = initialDirectory;
+        fileChooser.chooseFile(fileChooserConfig, new NativeFileChooserCallback() {
+            @Override
+            public void onFileChosen(FileHandle fileHandle) {
+                setMapFilePath(fileHandle.path());
+                goToGameWithNewMap(fileHandle.path());
+            }
+
+            @Override
+            public void onCancellation() {
+            }
+
+            @Override
+            public void onError(Exception exception) {
+                System.err.println("Error picking maze file: " + exception.getMessage());            }
+        });
+    }
+    public void goToGameWithNewMap(String mapFilePath) {
+        if (gameScreen != null) {
+            gameScreen.dispose(); // Dispose of the current game screen if it exists
+        }
+        gameScreen = new GameScreen(this); // Create a new game screen with the chosen map
+        setScreen(gameScreen); // Set the new game screen
     }
 }
