@@ -1,6 +1,5 @@
 package de.tum.cit.ase.maze;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -37,21 +36,22 @@ public class Hud {
     private Table table;
     private Table heartTable;
     private boolean isTimerPaused;
+    private boolean gameOverSoundPlayed = false;
     private Character character; // Pass the Character object to the Hud
     private GameMap maze;
+    private MazeRunnerGame game;
     private MovementManager movementManager;
     private Image keyImage; // Image for the collected key
     private TextureRegion keyGraphic; // Texture for the key graphic
     private static final int FRAME_COLS = 33; // Number of columns in the sprite sheet
     private static final int FRAME_ROWS = 20;
-
     Label countdownLabel;
     Label scoreLabel;
     Label timeLabel;
 
 
 
-    public Hud(SpriteBatch sb, Character character) {
+    public Hud(SpriteBatch sb, Character character, MazeRunnerGame game) {
         worldTimer = 200;
         timeCount = 0;
         score = 5;
@@ -60,6 +60,7 @@ public class Hud {
         isGameOver = false;
         isWin = false;
         this.character = character;
+        this.game = game;
 
         table = new Table();
         table.right().top();
@@ -160,6 +161,7 @@ public class Hud {
         isTimerPaused = false;
     }
     public void update(float dt) {
+
         if (!isGameOver && !isTimerPaused) {
             timeCount += dt;
 
@@ -167,8 +169,6 @@ public class Hud {
                 worldTimer--;
                 countdownLabel.setText(String.format("%03d", worldTimer));
                 timeCount = 0;
-
-
 
                 if (worldTimer <= 0) {
                     isGameOver = true;
@@ -179,11 +179,17 @@ public class Hud {
 
     }
     public void showGameOverScreen() {
+        if (!gameOverSoundPlayed) {
+            game.playGameOverSound(); // Play the sound
+            gameOverSoundPlayed = true; // Set the flag to true
+        }
         isGameOver = true;
         gameOverTable.setVisible(true);
     }
     public void showWinScreen() {
         isWin = true;
+        game.stopBackgroundMusic();
+        game.playWinMusic();
         winTable.setVisible(true);
     }
 
@@ -227,4 +233,5 @@ public class Hud {
     public void dispose() {
         objectsTexture.dispose();
         stage.dispose();}
+
 }

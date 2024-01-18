@@ -3,6 +3,7 @@ package de.tum.cit.ase.maze;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -26,7 +27,7 @@ public class GameScreen implements Screen {
     private Hud hud;
     private Key key;
     private Viewport gamePort;
-
+private Music music;
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
@@ -36,7 +37,6 @@ public class GameScreen implements Screen {
     public GameScreen(MazeRunnerGame game) {
 
         this.game = game;
-
         //initialize gameMap
         gameMap = new GameMap("maps/level-2.properties");
         //find entry of the gameMap
@@ -44,11 +44,11 @@ public class GameScreen implements Screen {
         Point keyPoint = gameMap.findKey();
 
 //hud //ToDo (look in resize method)
-        hud = new Hud(game.getSpriteBatch(), character); //Mario
+        hud = new Hud(game.getSpriteBatch(), character, this.game); //Mario
         //initialize character and camera
         character = new Character(entryPoint.x, entryPoint.y, "character.png", 5, gameMap);
         key = new Key(keyPoint.x, keyPoint.y,"objects.png"); // Create the Key instance
-        movementManager = new MovementManager(character, gameMap, hud, key);
+        movementManager = new MovementManager(character, gameMap, hud, key, this.game);
         initializeCamera();
         camera.position.set(character.getX(), character.getY(), 0); //viewport
         //screenViewport for viewport requirements
@@ -130,11 +130,12 @@ public class GameScreen implements Screen {
 
         // Handle user input
         movementManager.handleInput();
-        movementManager.handleEnemyCollusion();
+        movementManager.handleEnemyCollusion(delta);
+        movementManager.handleTrapCollusion(delta);
 
         //cooldown
         character.update(delta);
-
+update(delta);
         //viewport
         updateCameraPosition();
 
@@ -222,9 +223,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        //dispose assets like textures when you're done with them
-        character.getTexture().dispose();
-        key.getTexture().dispose();
+            // Dispose assets like textures when you're done with them
+            if (character != null) character.getTexture().dispose();
+            if (key != null) key.getTexture().dispose();
+            if (hud != null) hud.dispose();
+            if (gameMap != null) gameMap.dispose();
+            // Dispose other assets if necessary
+        }
+
     }
 
-}

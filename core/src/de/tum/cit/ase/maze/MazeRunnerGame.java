@@ -3,6 +3,7 @@ package de.tum.cit.ase.maze;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -20,8 +21,6 @@ import com.badlogic.gdx.utils.Align;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserIntent;
-
-import java.io.IOException;
 
 
 /**
@@ -41,12 +40,20 @@ public class MazeRunnerGame extends Game {
 
     // UI Skin
     private Skin skin;
+    private Music backgroundMusic;
+    private Music menuMusic;
+    private Music winMusic;
+    public Sound keyPickupSound;
+public Sound enemySound;
+    public Sound trapSound;
+public Sound gameOverSound;
 
     // Character animation downwards
     private Animation<TextureRegion> characterDownAnimation;
     private final NativeFileChooser fileChooser; //fileChooser
     private GameMap gameMap; //fileChooser
     private String mapFilePath; //fileChooser
+
 
     /**
      * Constructor for MazeRunnerGame.
@@ -72,17 +79,71 @@ public class MazeRunnerGame extends Game {
 
         // Play some background music
         // Background sound
-        Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background.mp3"));
-        backgroundMusic.setLooping(true);
+      backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/Juhani Junkala [Chiptune Adventures] 1. Stage 1.ogg"));
+      backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(0.5f);
         backgroundMusic.play();
 
+
         goToMenu(); // Navigate to the menu screen
+
+      menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/8bit Bossa.mp3")); // Replace with your menu music file
+        menuMusic.setLooping(true);
+        menuMusic.play();
+
+        winMusic = Gdx.audio.newMusic(Gdx.files.internal("music/background.mp3")); // Replace with your menu music file
+        winMusic.setLooping(true);
+
+
+        keyPickupSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_button2.wav"));
+
+
+enemySound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_error9.wav"));
+        trapSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_interaction1.wav"));
+
+gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative1.wav"));
+    }
+
+    @Override
+    public void render(){
+        super.render();
+
     }
 
     /**
      * Switches to the menu screen.
      */
+    public void playKeyPickupSound() {
+        keyPickupSound.play(); // Adjust volume as needed
+    }
+    public void playEnemySound() {
+        enemySound.play(1.0f); // Adjust volume as needed
+    }
+    public void playTrapSound() {
+        trapSound.play(); // Adjust volume as needed
+    }
+    public void playGameOverSound() {
+        if (gameOverSound != null) {
+            gameOverSound.play(1.0f); // 1.0f for full volume
+        }
+    }
+    public void playWinMusic() {
+        if (winMusic != null) {
+            winMusic.play(); // 1.0f for full volume
+        }
+    }
+    public void stopBackgroundMusic() {
+        if (backgroundMusic != null && backgroundMusic.isPlaying()) {
+            backgroundMusic.stop();
+        }
+    }
     public void goToMenu() {
+        if (backgroundMusic != null && backgroundMusic.isPlaying()) {
+            backgroundMusic.stop();
+        }
+        if (menuMusic != null && !menuMusic.isPlaying()) {
+            menuMusic.play();
+        }
         this.setScreen(new MenuScreen(this)); // Set the current screen to MenuScreen
         //if (gameScreen != null) {
            // gameScreen.dispose(); // Dispose the game screen if it exists
@@ -102,6 +163,12 @@ public class MazeRunnerGame extends Game {
      * Switches to the game screen.
      */
     public void goToGame() {
+        if (menuMusic != null && menuMusic.isPlaying()) {
+            menuMusic.stop();
+        }
+        if (backgroundMusic != null && !backgroundMusic.isPlaying()) {
+            backgroundMusic.play();
+        }
         gameScreen = new GameScreen(this);
         setScreen(gameScreen);
         if (menuScreen != null) {
@@ -110,6 +177,12 @@ public class MazeRunnerGame extends Game {
         }
     }
     public void resumeGame() {
+        if (menuMusic != null && menuMusic.isPlaying()) {
+            menuMusic.stop();
+        }
+        if (backgroundMusic != null && !backgroundMusic.isPlaying()) {
+            backgroundMusic.play();
+        }
         if (gameScreen == null) {
             Gdx.gl.glClearColor(0, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -174,6 +247,17 @@ public class MazeRunnerGame extends Game {
         getScreen().dispose(); // Dispose the current screen
         spriteBatch.dispose(); // Dispose the spriteBatch
         skin.dispose(); // Dispose the skin
+        if (backgroundMusic != null) {
+            backgroundMusic.dispose();
+        }
+        if (menuMusic != null) {
+            menuMusic.dispose();
+        }
+        keyPickupSound.dispose();
+        if (enemySound != null) enemySound.dispose();
+        if (gameOverSound != null) {
+            gameOverSound.dispose();
+        }
     }
 
     // Getter methods
@@ -228,4 +312,6 @@ public class MazeRunnerGame extends Game {
         gameScreen = new GameScreen(this); // Create a new game screen with the chosen map
         setScreen(gameScreen); // Set the new game screen
     }
+
+
 }

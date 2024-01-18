@@ -244,4 +244,22 @@ public class GameMap {
     public void setEnemies(Array<Enemy> enemies) {
         this.enemies = enemies;
     }
+
+    public void dispose() {
+        // Dispose of textures or other disposable assets used by gameObjects
+        for (int y = 0; y < gameObjects.length; y++) {
+            for (int x = 0; x < gameObjects[y].length; x++) {
+                if (gameObjects[x][y] != null) {
+                    gameObjects[x][y].dispose();
+                }
+            }
+        }
+
+        // Dispose of textures or other disposable assets used by enemies
+        for (Enemy enemy : enemies) {
+            enemy.dispose();
+        }
+
+        // Dispose any other assets if necessary
+    }
 }

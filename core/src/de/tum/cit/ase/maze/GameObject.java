@@ -43,4 +43,11 @@ public abstract class GameObject {
     public void setTexture(Texture texture) {
         this.texture = texture;
     }
+
+    public void dispose() {
+        // Dispose of textures or other disposable assets
+        if (texture != null) {
+            texture.dispose();
+        }
+    }
 }
