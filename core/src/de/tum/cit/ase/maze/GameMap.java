@@ -156,7 +156,18 @@ public class GameMap {
         return false;
     }
 
-
+    public boolean collusionWithExit(float x, float y){
+        int tileSize = 16; // size of our tiles
+        float offsetX = (34 - tileSize) / 2f;
+        float offsetY = (32 - tileSize) / 2f;
+        int tileX = (int)((x + offsetX) / tileSize);
+        int tileY = (int)((y + offsetY) / tileSize);
+        GameObject gameObject = gameObjects[tileX][tileY];
+        if(gameObject instanceof Exit){
+            return true;
+        }
+        return false;
+    }
     //ToDo: auf tatsächliche Berührung anpassen
     public boolean collusionWithEnemy(float x, float y){
         Rectangle characterRect = new Rectangle((int)x, (int)y + 6, 16, 16); //tileSize //center

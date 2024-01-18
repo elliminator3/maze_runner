@@ -1,5 +1,6 @@
 package de.tum.cit.ase.maze;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -27,17 +28,22 @@ public class Hud {
     private boolean isGameOver;
     private Table gameOverTable;
     private Label gameOverLabel;
+    private boolean isWin;
+    private Table winTable;
+    private Label winLabel;
     private TextureRegion fullHeart;
     private TextureRegion emptyHeart;
     private Texture objectsTexture;
     private Table table;
     private Table heartTable;
     private boolean isTimerPaused;
-    private boolean hasKey;
     private Character character; // Pass the Character object to the Hud
-    private Key key;
+    private GameMap maze;
+    private MovementManager movementManager;
     private Image keyImage; // Image for the collected key
     private TextureRegion keyGraphic; // Texture for the key graphic
+    private static final int FRAME_COLS = 33; // Number of columns in the sprite sheet
+    private static final int FRAME_ROWS = 20;
 
     Label countdownLabel;
     Label scoreLabel;
@@ -46,15 +52,14 @@ public class Hud {
 
 
     public Hud(SpriteBatch sb, Character character) {
-        worldTimer = 300;
+        worldTimer = 200;
         timeCount = 0;
         score = 5;
         viewport = new FitViewport(MazeRunnerGame.V_WIDTH, MazeRunnerGame.V_HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, sb);
         isGameOver = false;
-        hasKey = false;
+        isWin = false;
         this.character = character;
-        this.key = key;
 
         table = new Table();
         table.right().top();
@@ -109,6 +114,27 @@ public class Hud {
         gameOverTable.setVisible(false); // Initially hidden
 
 
+        winTable = new Table();
+        winTable.setFillParent(true); // Make the table fill the stage
+        winTable.center(); // Center contents in the table
+// Create a Pixmap, color it blue, and then create a Texture from it
+        Pixmap pixmapwin = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmapwin.setColor(Color.BLUE);
+        pixmapwin.fill();
+        Texture blueTexture = new Texture(pixmapwin); // don't forget to dispose of this later
+        pixmapwin.dispose(); // Dispose pixmap as it's no longer needed
+
+        Drawable blueBackground = new TextureRegionDrawable(new TextureRegion(blueTexture));
+        winTable.setBackground(blueBackground);
+        winTable.setBackground(blueBackground);
+        Label.LabelStyle largeLabelStyleWin = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+        largeLabelStyleWin.font.getData().setScale(2); // Make the font larger
+        winLabel = new Label("YOU WIN", largeLabelStyleWin);
+
+        winTable.add(winLabel).expand().center();
+        winTable.setVisible(false); // Initially hidden
+
+
         //key is nine (looks a bit like a key)
         keyGraphic = new TextureRegion(objectsTexture, 80, 256, 16, 16); // Replace with actual coordinates and size
 
@@ -120,7 +146,9 @@ public class Hud {
 
         stage.addActor(heartTable);
         stage.addActor(gameOverTable);
+        stage.addActor(winTable);
         stage.addActor(table);
+
     }
 
 
@@ -134,10 +162,13 @@ public class Hud {
     public void update(float dt) {
         if (!isGameOver && !isTimerPaused) {
             timeCount += dt;
+
             if (timeCount >= 1) {
                 worldTimer--;
                 countdownLabel.setText(String.format("%03d", worldTimer));
                 timeCount = 0;
+
+
 
                 if (worldTimer <= 0) {
                     isGameOver = true;
@@ -146,15 +177,14 @@ public class Hud {
             }
         }
 
-        /*
-        if (!hasKey && character.getBoundingRectangle().overlaps(key.getBoundingRectangle())) {
-            hasKey = true;
-            // Optionally, you can perform additional actions when the key is obtained
-        } */
     }
     public void showGameOverScreen() {
         isGameOver = true;
         gameOverTable.setVisible(true);
+    }
+    public void showWinScreen() {
+        isWin = true;
+        winTable.setVisible(true);
     }
 
     public void showKeyCollected() {
@@ -168,19 +198,19 @@ public class Hud {
     }
 
     public void updateHearts(int health) {
-            heartTable.clear();
-            for (int i = 0; i < health; i++) {
-                Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
-                Image heartImage = new Image(heartDrawable);
-                heartTable.add(heartImage).padTop(2);
-            }
-            for (int i = health; i < 5; i++) {
-                Drawable heartDrawable = new TextureRegionDrawable(emptyHeart);
-                Image heartImage = new Image(heartDrawable);
-                heartTable.add(heartImage).padTop(2);
-            }
-            stage.draw();
+        heartTable.clear();
+        for (int i = 0; i < health; i++) {
+            Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
+            Image heartImage = new Image(heartDrawable);
+            heartTable.add(heartImage).padTop(2);
         }
+        for (int i = health; i < 5; i++) {
+            Drawable heartDrawable = new TextureRegionDrawable(emptyHeart);
+            Image heartImage = new Image(heartDrawable);
+            heartTable.add(heartImage).padTop(2);
+        }
+        stage.draw();
+    }
 
 
 
@@ -189,7 +219,11 @@ public class Hud {
         return isGameOver;
     }
 
-    //wofÃ¼r genau brauche ich das?
+    public boolean isWin(){
+        return isWin;
+    }
+
+    //wofür genau brauche ich das?
     public void dispose() {
         objectsTexture.dispose();
         stage.dispose();}

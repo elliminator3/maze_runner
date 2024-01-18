@@ -7,14 +7,14 @@ import java.awt.*;
 
 public class MovementManager {
     private Character character;
-    private GameMap maze;
+    private GameMap gameMap;
     private Hud hud;
     private boolean isPaused;
     private Key key;
 
-    public MovementManager(Character character, GameMap maze, Hud hud, Key key) {
+    public MovementManager(Character character, GameMap gameMap, Hud hud, Key key) {
         this.character = character;
-        this.maze = maze;
+        this.gameMap = gameMap;
         this.hud = hud;
         this.key = key;
         this.isPaused = false;
@@ -27,6 +27,7 @@ public class MovementManager {
         float nextX = character.getX();
         float nextY = character.getY();
         character.checkForKeyCollision(key);
+        checkWinCondition();
 
         boolean moved = false;
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
@@ -39,7 +40,9 @@ public class MovementManager {
                 }
                 if (gameMap.collusionWithKey(nextX, nextY + 13)) {
                     key.collect(gameMap);
+                    key.isCollected();
                     hud.showKeyCollected();
+
                 }
             }
         }
@@ -54,7 +57,9 @@ public class MovementManager {
                     }
                     if (gameMap.collusionWithKey(nextX, nextY - 1)) {
                         key.collect(gameMap);
+                        key.isCollected();
                         hud.showKeyCollected();
+
                     }
                 }
 
@@ -68,6 +73,7 @@ public class MovementManager {
                     }
                     if (gameMap.collusionWithKey(nextX - 7, nextY)) {
                         key.collect(gameMap);
+                        key.isCollected();
                         hud.showKeyCollected();
 
                     }
@@ -83,7 +89,9 @@ public class MovementManager {
                     }
                     if (gameMap.collusionWithKey(nextX +7,  nextY)) {
                         key.collect(gameMap);
+                        key.isCollected();
                         hud.showKeyCollected();
+
                     }
                 }
             }
@@ -94,7 +102,14 @@ public class MovementManager {
             } else {
                 character.resetAnimationStateTime();
             } // Reset state time if not moving
+
     }
+    public void checkWinCondition() {
+        if (character.hasKey() || key.isCollected() && gameMap.collusionWithExit(character.getX(), character.getY())){
+            hud.showWinScreen();
+        }
+    }
+
 
     public void handleEnemyCollusion(){
         if(gameMap.collusionWithEnemy(character.getX(), character.getY())){

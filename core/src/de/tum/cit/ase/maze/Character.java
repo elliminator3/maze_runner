@@ -70,6 +70,7 @@ public class Character extends GameObject{
     public void render(SpriteBatch batch) {
         currentFrame = currentAnimation.getKeyFrame(stateTime, true);  // Get current frame based on the state time
         batch.draw(currentFrame, getX(), getY());  // Draw at character's current position
+
     }
 
     @Override
@@ -189,6 +190,9 @@ public class Character extends GameObject{
     public void update(float deltaTime) {
         if (trapCooldownTime > 0) {
             trapCooldownTime -= deltaTime;
+        }
+        if (maze.collusionWithKey(getX(), getY()) && !hasKey){
+            hasKey = true;
         }
     }
 
