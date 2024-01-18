@@ -38,7 +38,7 @@ public class GameScreen implements Screen {
         this.game = game;
 
         //initialize gameMap
-        gameMap = new GameMap("maps/level-1.properties");
+        gameMap = new GameMap("maps/level-2.properties");
         //find entry of the gameMap
         Point entryPoint = gameMap.findEntry();
         Point keyPoint = gameMap.findKey();
@@ -124,7 +124,9 @@ public class GameScreen implements Screen {
         // Check for escape key press to go back to the menu
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
-
+        hud.stage.act(delta);
+        hud.stage.draw();
+        hud.update(delta);
 
         // Handle user input
         movementManager.handleInput();
@@ -132,10 +134,7 @@ public class GameScreen implements Screen {
 
         //cooldown
         character.update(delta);
-        update(delta);
-        hud.stage.act(delta);
-        hud.stage.draw();
-        hud.update(delta);
+
         //viewport
         updateCameraPosition();
 
@@ -143,7 +142,6 @@ public class GameScreen implements Screen {
         game.getSpriteBatch().setProjectionMatrix(camera.combined);
 
         game.getSpriteBatch().begin(); // Important to call this before drawing anything
-
 
 
         //draw the maze
@@ -165,7 +163,6 @@ public class GameScreen implements Screen {
             // Ensure gameScreen is not disposed
             game.goToMenu();
         }
-
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
         hud.stage.act(delta);
@@ -200,12 +197,7 @@ public class GameScreen implements Screen {
         if(!hud.isGameOver()) {
             hud.update(dt);
             movementManager.handleInput();
-            character.update(dt);
-            if (character.hasKey()) {
-                hud.showWinScreen();
-            }
         }
-
     }
     @Override
     public void pause() {

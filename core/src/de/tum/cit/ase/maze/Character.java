@@ -24,7 +24,7 @@ public class Character extends GameObject{
     private float speed = 60;
     private TextureRegion keyFrame;
     private float trapCooldownTime = 0; //cooldown
-    private final float trapCooldownDuration = 1.0f; // 1 second cooldown
+    private final float trapCooldownDuration = 3.0f; // 1 second cooldown
 
 
 

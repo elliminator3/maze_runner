@@ -1,7 +1,6 @@
 package de.tum.cit.ase.maze;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Input.Keys;
 
 import java.awt.*;
 
@@ -36,7 +35,7 @@ public class MovementManager {
                 moved = true;
 
                 if (gameMap.collusionWithTrap(nextX, nextY + 13)) { //if character steps on a spring he loses a live and starts again at his starting point
-                    character.loseLife(); //ToDo: why does sometimes more than one live get subtracted?
+                    character.loseLife();
                 }
                 if (gameMap.collusionWithKey(nextX, nextY + 13)) {
                     key.collect(gameMap);
