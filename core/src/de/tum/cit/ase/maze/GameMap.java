@@ -114,16 +114,16 @@ public class GameMap {
         float offsetY = (32 - tileSize) / 2f;
 
         // Calculate the offset to center the 16x16 collision box within the 34x32 sprite
-        int tileX = (int)((x + offsetX) / tileSize);
-        int tileY = (int)((y + offsetY) / tileSize);
+        float tileX = (x + offsetX) / tileSize;
+        float tileY = (y + offsetY) / tileSize;
 
         //check maze bounds
-        if (tileX < 0 || tileX > gameObjects.length || tileY < 0 || tileY > gameObjects[0].length) {
+        if (tileX <= 0 || tileX >= gameObjects.length || tileY <= 0|| tileY >= gameObjects[0].length) {
             return true;
             }
 
         //check for walls / other non-walkable objects?(enemy)
-        GameObject gameObject = gameObjects[tileX][tileY];
+        GameObject gameObject = gameObjects[(int)tileX][(int)tileY];
         if(gameObject instanceof Wall || gameObject instanceof Entry){
             return true;
         }
@@ -169,12 +169,12 @@ public class GameMap {
         }
         return false;
     }
-    //ToDo: auf tatsächliche Berührung anpassen
-    public boolean collusionWithEnemy(float x, float y){
-        Rectangle characterRect = new Rectangle((int)x, (int)y + 6, 16, 16); //tileSize //center
 
+    //ToDo: does this fit the visualization
+    public boolean collusionWithEnemy(float x, float y){
+        Rectangle characterRect = new Rectangle((int)x -4, (int)y + 4, 14, 16); //tileSize //adjustments to fit visualization
         for (Enemy enemy : enemies) {
-            Rectangle enemyRect = new Rectangle((int) enemy.getX()*16, (int) enemy.getY()*16, 16, 16); //tileSize //repositioning
+            Rectangle enemyRect = new Rectangle(((int) enemy.getX()*16), (int) enemy.getY()*16, 8, 16); //tileSize //8 fits better to visualization
             if (characterRect.overlaps(enemyRect)) {
                 return true;
             }
@@ -262,4 +262,7 @@ public class GameMap {
 
         // Dispose any other assets if necessary
     }
+
+
+
 }
