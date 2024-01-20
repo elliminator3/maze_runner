@@ -29,15 +29,20 @@ public class Hud {
     private boolean isGameOver;
     private Table gameOverTable;
     private Label gameOverLabel;
+    private boolean isWin;
+    private Table winTable;
+    private Label winLabel;
     private TextureRegion fullHeart;
     private TextureRegion emptyHeart;
     private Texture objectsTexture;
     private Table table;
     private Table heartTable;
     private boolean isTimerPaused;
-    private boolean hasKey;
+    private boolean gameOverSoundPlayed = false;
     private Character character; // Pass the Character object to the Hud
-    private Key key;
+    private GameMap maze;
+    private MazeRunnerGame game;
+    private MovementManager movementManager;
     private Image keyImage; // Image for the collected key
     private TextureRegion keyGraphic; // Texture for the key graphic
     private Image blackBar;
@@ -48,17 +53,17 @@ public class Hud {
 
 
 
-    public Hud(SpriteBatch sb, Character character) {
-        worldTimer = 300;
+    public Hud(SpriteBatch sb, Character character, MazeRunnerGame game) {
+        worldTimer = 200;
         timeCount = 0;
         score = 5;
         viewport = new ScreenViewport(new OrthographicCamera());
         //new FitViewport(MazeRunnerGame.V_WIDTH, MazeRunnerGame.V_HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, sb);
         isGameOver = false;
-        hasKey = false;
+        isWin = false;
         this.character = character;
-        this.key = key;
+        this.game = game;
 
         table = new Table();
         table.right().top();
@@ -88,7 +93,7 @@ public class Hud {
         updateHearts(score);
 
         BitmapFont font = new BitmapFont();
-        font.getData().setScale(1.3f); // Scale to 50% of original size
+        font.getData().setScale(0.8f); // Scale to 50% of original size
 
 // Create a LabelStyle with the scaled font
         Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
@@ -124,6 +129,25 @@ public class Hud {
         gameOverTable.add(gameOverLabel).expand().center();
         gameOverTable.setVisible(false); // Initially hidden
 
+        winTable = new Table();
+        winTable.setFillParent(true); // Make the table fill the stage
+        winTable.center(); // Center contents in the table
+// Create a Pixmap, color it blue, and then create a Texture from it
+        Pixmap pixmapwin = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmapwin.setColor(Color.BLUE);
+        pixmapwin.fill();
+        Texture blueTexture = new Texture(pixmapwin); // don't forget to dispose of this later
+        pixmapwin.dispose(); // Dispose pixmap as it's no longer needed
+
+        Drawable blueBackground = new TextureRegionDrawable(new TextureRegion(blueTexture));
+        winTable.setBackground(blueBackground);
+        winTable.setBackground(blueBackground);
+        Label.LabelStyle largeLabelStyleWin = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+        largeLabelStyleWin.font.getData().setScale(2); // Make the font larger
+        winLabel = new Label("YOU WIN", largeLabelStyleWin);
+
+        winTable.add(winLabel).expand().center();
+        winTable.setVisible(false); // Initially hidden
 
         //key is nine (looks a bit like a key)
         keyGraphic = new TextureRegion(objectsTexture, 80, 256, 16, 16); // Replace with actual coordinates and size
@@ -131,7 +155,7 @@ public class Hud {
         // Initialize the key image but keep it hidden initially
         keyImage = new Image(keyGraphic);
         keyImage.setVisible(false);
-        keyImage.setScale(1.7f);
+        keyImage.setScale(1.5f);
         keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight()-20); // Position at the upper left corner
 
         stage.addActor(blackBar);
@@ -139,6 +163,7 @@ public class Hud {
         stage.addActor(keyImage);
         stage.addActor(heartTable);
         stage.addActor(gameOverTable);
+        stage.addActor(winTable);
         stage.addActor(table);
     }
 
@@ -167,8 +192,18 @@ public class Hud {
 
     }
     public void showGameOverScreen() {
+        if (!gameOverSoundPlayed) {
+            game.playGameOverSound(); // Play the sound
+            gameOverSoundPlayed = true; // Set the flag to true
+        }
         isGameOver = true;
         gameOverTable.setVisible(true);
+    }
+    public void showWinScreen() {
+        isWin = true;
+        game.stopBackgroundMusic();
+        game.playWinMusic();
+        winTable.setVisible(true);
     }
 
     public void showKeyCollected() {
@@ -204,8 +239,9 @@ public class Hud {
     public boolean isGameOver(){
         return isGameOver;
     }
-
-    //wofÃ¼r genau brauche ich das?
+    public boolean isWin(){
+        return isWin;
+    }
     public void dispose() {
         objectsTexture.dispose();
         stage.dispose();}
