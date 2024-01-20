@@ -71,7 +71,7 @@ public class Hud {
 
         //Pixmap for hud background
         Pixmap pixmapBackground = new Pixmap(1, 1, Pixmap.Format.RGB888);
-        pixmapBackground.setColor(Color.BLACK);
+        pixmapBackground.setColor(new Color(0, 0, 0, 0.8f));
         pixmapBackground.fill();
         //Texture from Pixmap
         Texture backgroundTexture = new Texture(pixmapBackground);
@@ -80,7 +80,7 @@ public class Hud {
         blackBar = new Image(backgroundDrawable);
         blackBar.setSize(stage.getWidth(), 50); // Set the desired height
         blackBar.setPosition(0, stage.getHeight() - 50); // Position at the top of the stage
-
+        blackBar.setColor(1, 1, 1, 0.8f);
 
         objectsTexture = new Texture(files.internal("assets/objects.png"));
 
@@ -93,13 +93,13 @@ public class Hud {
         updateHearts(score);
 
         BitmapFont font = new BitmapFont();
-        font.getData().setScale(0.8f); // Scale to 50% of original size
+        font.getData().setScale(1.3f); // Scale to 50% of original size
 
 // Create a LabelStyle with the scaled font
         Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
 
 // Create the Label with the custom style
-        timeLabel = new Label(" T I M E ", labelStyle);
+        timeLabel = new Label(" TIME ", labelStyle);
         countdownLabel = new Label(String.format("%03d", worldTimer), labelStyle);
         scoreLabel = new Label(String.format("%02d", score), labelStyle);
 
@@ -160,8 +160,8 @@ public class Hud {
 
         stage.addActor(blackBar);
 
-        stage.addActor(keyImage);
         stage.addActor(heartTable);
+        stage.addActor(keyImage);
         stage.addActor(gameOverTable);
         stage.addActor(winTable);
         stage.addActor(table);
@@ -222,14 +222,14 @@ public class Hud {
             //Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
             //Image heartImage = new Image(heartDrawable);
             Image fullHeartImage = new Image(fullHeart);
-            fullHeartImage.setScale(1.7f);
+            fullHeartImage.setScale(2f);
             heartTable.add(fullHeartImage).padTop(20).padRight(5);
         }
         for (int i = health; i < 5; i++) {
             //Drawable heartDrawable = new TextureRegionDrawable(emptyHeart);
             //Image heartImage = new Image(heartDrawable);
             Image emptyHeartImage = new Image(emptyHeart);
-            emptyHeartImage.setScale(1.7f);
+            emptyHeartImage.setScale(2f);
             heartTable.add(emptyHeartImage).padTop(20).padRight(5);
         }
         stage.draw();
