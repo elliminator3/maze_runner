@@ -22,7 +22,7 @@ public class Character extends GameObject{
     private Animation<TextureRegion> currentAnimation;
     private GameMap maze;
     private float stateTime;
-    private float speed = 60;
+    private float speed = 90;
     private TextureRegion keyFrame;
     private float trapCooldownTime = 0; //cooldown
     private final float trapCooldownDuration = 1.0f; // 1 second cooldown
