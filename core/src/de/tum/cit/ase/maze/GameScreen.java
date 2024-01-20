@@ -135,7 +135,7 @@ private Music music;
 
         //cooldown
         character.update(delta);
-update(delta);
+//update(delta); timer and character move faster
         //viewport
         updateCameraPosition();
 

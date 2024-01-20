@@ -16,6 +16,7 @@ public class Key extends GameObject {
     // Add a bounding rectangle for collision detection
     private Rectangle boundingRectangle;
     private boolean isCollected = false;
+
 private Character character;
 
     public Key(float x, float y, String texturePath) {

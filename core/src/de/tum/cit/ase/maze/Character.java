@@ -1,6 +1,7 @@
 package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -24,14 +25,24 @@ public class Character extends GameObject{
     private float speed = 60;
     private TextureRegion keyFrame;
     private float trapCooldownTime = 0; //cooldown
-    private final float trapCooldownDuration = 3.0f; // 1 second cooldown
+    private final float trapCooldownDuration = 1.0f; // 1 second cooldown
 private MazeRunnerGame game;
-
+    private Animation<TextureRegion> standingDownAnimation, standingRightAnimation, standingUpAnimation,standingLeftAnimation;
+   private MovementState currentMovementState = MovementState.STANDING;
 
     // Additional attributes to handle animations
     private TextureRegion currentFrame;
-    private static final int FRAME_COLS = 16; // Number of columns in the sprite sheet
+    private static final int FRAME_COLS = 17; // Number of columns in the sprite sheet
     private static final int FRAME_ROWS = 8; // Number of rows in the sprite sheet
+
+
+    // Helper method to extract frames from the given row
+    public enum Direction {
+        DOWN, UP, LEFT, RIGHT
+    }
+
+    // Current direction the character is facing
+    private Direction currentDirection = Direction.DOWN;
 
 
     public Character(float x, float y, String texturePath, int lives, GameMap maze) {
@@ -55,51 +66,111 @@ private MazeRunnerGame game;
 
         boundingRectangle = new Rectangle(x, y, getWidth(), getHeight());
         // Assuming you want the first frame of the first animation row
-        upAnimation = new Animation<>(0.1f, tmp[2]); // Assuming the idle frame for 'up' is the first frame of the third row
-        downAnimation = new Animation<>(0.1f, tmp[0]);
-        leftAnimation = new Animation<>(0.1f, tmp[3]);
-        rightAnimation = new Animation<>(0.1f, tmp[1]);
+        upAnimation = new Animation<>(0.1f, getFrames(tmp, 2, 0, 4)); // First four frames of the third row
+        downAnimation = new Animation<>(0.1f, getFrames(tmp, 0, 0, 4)); // First four frames of the first row
+        leftAnimation = new Animation<>(0.1f, getFrames(tmp, 3, 0, 4)); // First four frames of the fourth row
+        rightAnimation = new Animation<>(0.1f, getFrames(tmp, 1, 0, 4)); // First four frames of the second row
         currentAnimation = downAnimation;
+        standingDownAnimation = new Animation<>(0.1f, getStandingFrames(tmp, 0, 5, 3));
+        standingRightAnimation = new Animation<>(0.1f, getStandingFrames(tmp, 1, 7, 3));
+        standingUpAnimation = new Animation<>(0.1f, getStandingFrames(tmp, 2, 5, 3));
+        standingLeftAnimation = new Animation<>(0.1f, getStandingFrames(tmp, 3, 7, 3));
 
         stateTime = 0f;
     }
 
+    public enum MovementState {
+        STANDING, MOVING_UP, MOVING_DOWN, MOVING_LEFT, MOVING_RIGHT
+    }
 
+
+    // Current movement state
+
+
+    private Array<TextureRegion> getFrames(TextureRegion[][] frames, int startRow, int startCol, int frameCount) {
+        Array<TextureRegion> animationFrames = new Array<>();
+        int row = startRow; // No loop needed if only one row is used
+        for (int col = startCol; col < startCol + frameCount; col++) {
+            animationFrames.add(frames[row][col]);
+        }
+        return animationFrames;
+    }
+
+    private Array<TextureRegion> getStandingFrames(TextureRegion[][] frames, int startRow, int startCol, int frameCount) {
+        Array<TextureRegion> animationFrames = new Array<>();
+        int row = startRow; // No loop needed if only one row is used
+        for (int col = startCol; col < startCol + frameCount; col++) {
+            animationFrames.add(frames[row][col]);
+        }
+        return animationFrames;
+    }
+
+    public void checkForStop() {
+        if (!Gdx.input.isKeyPressed(Input.Keys.UP) &&
+                !Gdx.input.isKeyPressed(Input.Keys.DOWN) &&
+                !Gdx.input.isKeyPressed(Input.Keys.LEFT) &&
+                !Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            currentMovementState = MovementState.STANDING;
+        }
+    }
     //specifies how to draw the character on the screen using a SpriteBatch
     @Override
     public void render(SpriteBatch batch) {
+        checkForStop();
+        if (currentMovementState == MovementState.STANDING) {
+            switch (currentDirection) {
+                case DOWN:
+                    currentAnimation = standingDownAnimation;
+                    break;
+                case UP:
+                    currentAnimation = standingUpAnimation;
+                    break;
+                case LEFT:
+                    currentAnimation = standingLeftAnimation;
+                    break;
+                case RIGHT:
+                    currentAnimation = standingRightAnimation;
+                    break;
+            }
+        }
         currentFrame = currentAnimation.getKeyFrame(stateTime, true);  // Get current frame based on the state time
         batch.draw(currentFrame, getX(), getY());  // Draw at character's current position
 
     }
+
 
     @Override
     public void render(SpriteBatch batch, float x, float y) {
         //not needed?
     }
 
-    public void updateAnimationStateTime(float deltaTime) {
-        stateTime += deltaTime;
-    }
 
     // Movement methods
     public void moveUp() {
         setY(getY() + speed * Gdx.graphics.getDeltaTime());
         currentAnimation = upAnimation;
+        currentMovementState = MovementState.MOVING_UP;
+        currentDirection = Direction.UP;
     }
     public void moveDown() {
         setY(getY() - speed * Gdx.graphics.getDeltaTime());
         currentAnimation = downAnimation;
+        currentMovementState = MovementState.MOVING_DOWN;
+        currentDirection = Direction.DOWN;
     }
     public void moveRight() {
         setX(getX() + speed * Gdx.graphics.getDeltaTime());
         currentAnimation = rightAnimation;
+        currentMovementState = MovementState.MOVING_RIGHT;
+        currentDirection = Direction.RIGHT;
     }
     public void moveLeft() {
         setX(getX() - speed * Gdx.graphics.getDeltaTime());
         currentAnimation = leftAnimation;
-
+        currentMovementState = MovementState.MOVING_LEFT;
+        currentDirection = Direction.LEFT;
     }
+
 
     public void resetAnimationStateTime() {
         stateTime = 0f;
@@ -173,27 +244,17 @@ private MazeRunnerGame game;
         }
     }
 
-    /*
-    public void update(float dt) {
-        // Other character update code
-        boundingRectangle.setPosition(getX(), getY());
-
-        // Check if the character has collected the key
-        if (!hasKey && getBoundingRectangle().overlaps(key.getBoundingRectangle())) {
-            hasKey = true;
-            key.collect(); // Assuming you have a method to collect the key
-            key = null;
-              }
-    }*/
 
     //cooldown
     public void update(float deltaTime) {
+        stateTime += deltaTime;
+        checkForStop();
         if (trapCooldownTime > 0) {
             trapCooldownTime -= deltaTime;
         }
         if (maze.collusionWithKey(getX(), getY()) && !hasKey){
             hasKey = true;
         }
+        boundingRectangle.setPosition(getX(), getY());
     }
-
 }

@@ -88,6 +88,9 @@ public class MovementManager {
             }
 
             if (moved) {
+                if (gameMap.collusionWithExit(character.getX(), character.getY())) {
+
+                }
                 //ToDo anpassen!
                 //character.updateAnimationStateTime(Gdx.graphics.getDeltaTime());
             } else {
