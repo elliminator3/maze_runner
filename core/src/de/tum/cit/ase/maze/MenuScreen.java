@@ -2,6 +2,7 @@ package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.Texture;
@@ -24,22 +26,27 @@ public class MenuScreen implements Screen {
 
     private final Stage stage;
     private Texture backgroundTexture;
+    private OrthographicCamera camera; // Moved camera to a field
+    private Viewport viewport; // Moved viewport to a field
     /**
      * Constructor for MenuScreen. Sets up the camera, viewport, stage, and UI elements.
      *
      * @param game The main game class, used to access global resources and methods.
      */
     public MenuScreen(MazeRunnerGame game) {
-        var camera = new OrthographicCamera();
+        camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.zoom = 1.5f; // Set camera zoom for a closer view
 
-        Viewport viewport = new ScreenViewport(camera); // Create a viewport with the camera
+        viewport = new FillViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera); // Create a viewport with the camera
         stage = new Stage(viewport, game.getSpriteBatch()); // Create a stage for UI elements
         backgroundTexture = new Texture(Gdx.files.internal("Menu3.gif")); // Load the background image
         Image backgroundImage = new Image(backgroundTexture); // Create an Image actor for the background
-        backgroundImage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); // Set size to screen dimensions
-        stage.addActor(backgroundImage); // Add the background image to the stage
+        backgroundImage.setFillParent(true);
+        backgroundImage.setBounds(0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        backgroundImage.setScaling(Scaling.stretch);
+
+        stage.addActor(backgroundImage);  // Add the background image to the stage
 
 
         Table table = new Table(); // Create a table for layout
@@ -101,8 +108,10 @@ public class MenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true); // Update the stage viewport on resize
-        stage.getCamera().update();
+        viewport.update(width, height, true);
+        camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+        //stage.getViewport().update(width, height, true); // Update the stage viewport on resize
+        //stage.getCamera().update();
     }
 
     @Override

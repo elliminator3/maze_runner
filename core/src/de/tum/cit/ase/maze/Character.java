@@ -25,7 +25,7 @@ public class Character extends GameObject{
     private float speed = 90;
     private TextureRegion keyFrame;
     private float trapCooldownTime = 0; //cooldown
-    private final float trapCooldownDuration = 1.0f; // 1 second cooldown
+    private final float trapCooldownDuration = 0.7f; // 1 second cooldown
 private MazeRunnerGame game;
     private Animation<TextureRegion> standingDownAnimation, standingRightAnimation, standingUpAnimation,standingLeftAnimation;
    private MovementState currentMovementState = MovementState.STANDING;

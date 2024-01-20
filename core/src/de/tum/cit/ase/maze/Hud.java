@@ -155,8 +155,8 @@ public class Hud {
         // Initialize the key image but keep it hidden initially
         keyImage = new Image(keyGraphic);
         keyImage.setVisible(false);
-        keyImage.setScale(1.5f);
-        keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight()-20); // Position at the upper left corner
+        keyImage.setScale(2.4f);
+        keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight()-25); // Position at the upper left corner
 
         stage.addActor(blackBar);
 
@@ -222,15 +222,15 @@ public class Hud {
             //Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
             //Image heartImage = new Image(heartDrawable);
             Image fullHeartImage = new Image(fullHeart);
-            fullHeartImage.setScale(2f);
-            heartTable.add(fullHeartImage).padTop(20).padRight(5);
+            fullHeartImage.setScale(2.2f);
+            heartTable.add(fullHeartImage).padTop(25).padRight(5);
         }
         for (int i = health; i < 5; i++) {
             //Drawable heartDrawable = new TextureRegionDrawable(emptyHeart);
             //Image heartImage = new Image(heartDrawable);
             Image emptyHeartImage = new Image(emptyHeart);
-            emptyHeartImage.setScale(2f);
-            heartTable.add(emptyHeartImage).padTop(20).padRight(5);
+            emptyHeartImage.setScale(2.2f);
+            heartTable.add(emptyHeartImage).padTop(25).padRight(5);
         }
         stage.draw();
     }
