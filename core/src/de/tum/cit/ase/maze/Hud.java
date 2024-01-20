@@ -1,3 +1,4 @@
+
 package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Color;
@@ -27,50 +29,58 @@ public class Hud {
     private boolean isGameOver;
     private Table gameOverTable;
     private Label gameOverLabel;
-    private boolean isWin;
-    private Table winTable;
-    private Label winLabel;
     private TextureRegion fullHeart;
     private TextureRegion emptyHeart;
     private Texture objectsTexture;
     private Table table;
     private Table heartTable;
     private boolean isTimerPaused;
-    private boolean gameOverSoundPlayed = false;
+    private boolean hasKey;
     private Character character; // Pass the Character object to the Hud
-    private GameMap maze;
-    private MazeRunnerGame game;
-    private MovementManager movementManager;
+    private Key key;
     private Image keyImage; // Image for the collected key
     private TextureRegion keyGraphic; // Texture for the key graphic
-    private static final int FRAME_COLS = 33; // Number of columns in the sprite sheet
-    private static final int FRAME_ROWS = 20;
+    private Image blackBar;
+
     Label countdownLabel;
     Label scoreLabel;
     Label timeLabel;
 
 
 
-    public Hud(SpriteBatch sb, Character character, MazeRunnerGame game) {
-        worldTimer = 200;
+    public Hud(SpriteBatch sb, Character character) {
+        worldTimer = 300;
         timeCount = 0;
         score = 5;
-        viewport = new FitViewport(MazeRunnerGame.V_WIDTH, MazeRunnerGame.V_HEIGHT, new OrthographicCamera());
+        viewport = new ScreenViewport(new OrthographicCamera());
+        //new FitViewport(MazeRunnerGame.V_WIDTH, MazeRunnerGame.V_HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, sb);
         isGameOver = false;
-        isWin = false;
+        hasKey = false;
         this.character = character;
-        this.game = game;
+        this.key = key;
 
         table = new Table();
         table.right().top();
         table.setFillParent(true);
 
+        //Pixmap for hud background
+        Pixmap pixmapBackground = new Pixmap(1, 1, Pixmap.Format.RGB888);
+        pixmapBackground.setColor(Color.BLACK);
+        pixmapBackground.fill();
+        //Texture from Pixmap
+        Texture backgroundTexture = new Texture(pixmapBackground);
+        pixmapBackground.dispose(); // Dispose pixmap as it's no longer needed
+        Drawable backgroundDrawable = new TextureRegionDrawable(new TextureRegion(backgroundTexture));
+        blackBar = new Image(backgroundDrawable);
+        blackBar.setSize(stage.getWidth(), 50); // Set the desired height
+        blackBar.setPosition(0, stage.getHeight() - 50); // Position at the top of the stage
+
 
         objectsTexture = new Texture(files.internal("assets/objects.png"));
 
-        fullHeart = new TextureRegion(objectsTexture, 64, 0, 16, 16); // Replace with actual coordinates and size
-        emptyHeart = new TextureRegion(objectsTexture, 128, 0, 16, 16); // Replace with actual coordinates and size
+        fullHeart = new TextureRegion(objectsTexture, 64, 0, 16, 16);
+        emptyHeart = new TextureRegion(objectsTexture, 128, 0, 16, 16);
 
         heartTable = new Table();
         heartTable.center().top(); // Position the heart table at the top center
@@ -78,7 +88,7 @@ public class Hud {
         updateHearts(score);
 
         BitmapFont font = new BitmapFont();
-        font.getData().setScale(0.5f); // Scale to 50% of original size
+        font.getData().setScale(1.3f); // Scale to 50% of original size
 
 // Create a LabelStyle with the scaled font
         Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
@@ -115,41 +125,21 @@ public class Hud {
         gameOverTable.setVisible(false); // Initially hidden
 
 
-        winTable = new Table();
-        winTable.setFillParent(true); // Make the table fill the stage
-        winTable.center(); // Center contents in the table
-// Create a Pixmap, color it blue, and then create a Texture from it
-        Pixmap pixmapwin = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmapwin.setColor(Color.BLUE);
-        pixmapwin.fill();
-        Texture blueTexture = new Texture(pixmapwin); // don't forget to dispose of this later
-        pixmapwin.dispose(); // Dispose pixmap as it's no longer needed
-
-        Drawable blueBackground = new TextureRegionDrawable(new TextureRegion(blueTexture));
-        winTable.setBackground(blueBackground);
-        winTable.setBackground(blueBackground);
-        Label.LabelStyle largeLabelStyleWin = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
-        largeLabelStyleWin.font.getData().setScale(2); // Make the font larger
-        winLabel = new Label("YOU WIN", largeLabelStyleWin);
-
-        winTable.add(winLabel).expand().center();
-        winTable.setVisible(false); // Initially hidden
-
-
         //key is nine (looks a bit like a key)
         keyGraphic = new TextureRegion(objectsTexture, 80, 256, 16, 16); // Replace with actual coordinates and size
 
         // Initialize the key image but keep it hidden initially
         keyImage = new Image(keyGraphic);
         keyImage.setVisible(false);
-        keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight()-5); // Position at the upper left corner
-        stage.addActor(keyImage);
+        keyImage.setScale(1.7f);
+        keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight()-20); // Position at the upper left corner
 
+        stage.addActor(blackBar);
+
+        stage.addActor(keyImage);
         stage.addActor(heartTable);
         stage.addActor(gameOverTable);
-        stage.addActor(winTable);
         stage.addActor(table);
-
     }
 
 
@@ -161,10 +151,8 @@ public class Hud {
         isTimerPaused = false;
     }
     public void update(float dt) {
-
         if (!isGameOver && !isTimerPaused) {
             timeCount += dt;
-
             if (timeCount >= 1) {
                 worldTimer--;
                 countdownLabel.setText(String.format("%03d", worldTimer));
@@ -179,18 +167,8 @@ public class Hud {
 
     }
     public void showGameOverScreen() {
-        if (!gameOverSoundPlayed) {
-            game.playGameOverSound(); // Play the sound
-            gameOverSoundPlayed = true; // Set the flag to true
-        }
         isGameOver = true;
         gameOverTable.setVisible(true);
-    }
-    public void showWinScreen() {
-        isWin = true;
-        game.stopBackgroundMusic();
-        game.playWinMusic();
-        winTable.setVisible(true);
     }
 
     public void showKeyCollected() {
@@ -206,32 +184,44 @@ public class Hud {
     public void updateHearts(int health) {
         heartTable.clear();
         for (int i = 0; i < health; i++) {
-            Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
-            Image heartImage = new Image(heartDrawable);
-            heartTable.add(heartImage).padTop(2);
+            //Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
+            //Image heartImage = new Image(heartDrawable);
+            Image fullHeartImage = new Image(fullHeart);
+            fullHeartImage.setScale(1.7f);
+            heartTable.add(fullHeartImage).padTop(20).padRight(5);
         }
         for (int i = health; i < 5; i++) {
-            Drawable heartDrawable = new TextureRegionDrawable(emptyHeart);
-            Image heartImage = new Image(heartDrawable);
-            heartTable.add(heartImage).padTop(2);
+            //Drawable heartDrawable = new TextureRegionDrawable(emptyHeart);
+            //Image heartImage = new Image(heartDrawable);
+            Image emptyHeartImage = new Image(emptyHeart);
+            emptyHeartImage.setScale(1.7f);
+            heartTable.add(emptyHeartImage).padTop(20).padRight(5);
         }
         stage.draw();
     }
-
-
 
 
     public boolean isGameOver(){
         return isGameOver;
     }
 
-    public boolean isWin(){
-        return isWin;
-    }
-
-    //wofür genau brauche ich das?
+    //wofÃ¼r genau brauche ich das?
     public void dispose() {
         objectsTexture.dispose();
         stage.dispose();}
 
+    public Viewport getViewport() {
+        return viewport;
+    }
+
+    public void setViewport(Viewport viewport) {
+        this.viewport = viewport;
+    }
+    public void updatePositions() {
+        //update size and position of the background
+        blackBar.setSize(stage.getWidth(), 50);
+        blackBar.setPosition(0, stage.getHeight() - 50);
+        // Adjust the position of the key image
+        keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight() - 20);
+    }
 }
