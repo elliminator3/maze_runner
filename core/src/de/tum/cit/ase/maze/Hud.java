@@ -202,6 +202,7 @@ public class Hud {
     public void showWinScreen() {
         isWin = true;
         game.stopBackgroundMusic();
+        isTimerPaused = true;
         game.playWinMusic();
         winTable.setVisible(true);
     }
