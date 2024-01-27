@@ -137,6 +137,12 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
             backgroundMusic.stop();
         }
     }
+
+    public void stopWinMusic() {
+        if (winMusic != null && winMusic.isPlaying()) {
+            winMusic.stop();
+        }
+    }
     public void goToMenu() {
         if (backgroundMusic != null && backgroundMusic.isPlaying()) {
             backgroundMusic.stop();
@@ -144,6 +150,7 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
         if (menuMusic != null && !menuMusic.isPlaying()) {
             menuMusic.play();
         }
+        stopWinMusic();
         this.setScreen(new MenuScreen(this)); // Set the current screen to MenuScreen
         //if (gameScreen != null) {
            // gameScreen.dispose(); // Dispose the game screen if it exists
