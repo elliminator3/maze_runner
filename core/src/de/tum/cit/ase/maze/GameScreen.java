@@ -38,7 +38,7 @@ private Music music;
 
         this.game = game;
         //initialize gameMap
-        gameMap = new GameMap("maps/level-1.properties");
+        gameMap = new GameMap("maps/level-2.properties");
         //find entry of the gameMap
         Point entryPoint = gameMap.findEntry();
         Point keyPoint = gameMap.findKey();
