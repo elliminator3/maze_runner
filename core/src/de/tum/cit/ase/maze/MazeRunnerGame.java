@@ -44,6 +44,7 @@ public class MazeRunnerGame extends Game {
     private Music menuMusic;
     private Music winMusic;
     public Sound keyPickupSound;
+    public Sound extraLifeSound;
 public Sound enemySound;
     public Sound trapSound;
 public Sound gameOverSound;
@@ -97,6 +98,8 @@ public Sound gameOverSound;
 
         keyPickupSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_button2.wav"));
 
+        extraLifeSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_powerup2.wav"));
+
 
 enemySound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_error9.wav"));
         trapSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_interaction1.wav"));
@@ -122,6 +125,9 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
     public void playTrapSound() {
         trapSound.play(); // Adjust volume as needed
     }
+    public void playExtraLifeSound() {
+        extraLifeSound.play();}
+
     public void playGameOverSound() {
         if (gameOverSound != null) {
             gameOverSound.play(1.0f); // 1.0f for full volume

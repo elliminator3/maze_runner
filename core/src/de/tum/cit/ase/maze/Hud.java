@@ -219,14 +219,15 @@ public class Hud {
 
     public void updateHearts(int health) {
         heartTable.clear();
-        for (int i = 0; i < health; i++) {
+        int displayedHealth = Math.min(health, 5);
+        for (int i = 0; i < displayedHealth; i++) {
             //Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
             //Image heartImage = new Image(heartDrawable);
             Image fullHeartImage = new Image(fullHeart);
             fullHeartImage.setScale(2.2f);
             heartTable.add(fullHeartImage).padTop(25).padRight(5);
         }
-        for (int i = health; i < 5; i++) {
+        for (int i = displayedHealth; i < 5; i++) {
             //Drawable heartDrawable = new TextureRegionDrawable(emptyHeart);
             //Image heartImage = new Image(heartDrawable);
             Image emptyHeartImage = new Image(emptyHeart);
@@ -260,5 +261,9 @@ public class Hud {
         blackBar.setPosition(0, stage.getHeight() - 50);
         // Adjust the position of the key image
         keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight() - 20);
+    }
+
+    public Integer getScore() {
+        return score;
     }
 }

@@ -11,6 +11,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -44,10 +46,11 @@ private Music music;
         Point keyPoint = gameMap.findKey();
 
 //hud //ToDo (look in resize method)
-        hud = new Hud(game.getSpriteBatch(), character, this.game); //Mario
         //initialize character and camera
         character = new Character(entryPoint.x, entryPoint.y, "character.png", 5, gameMap);
+        hud = new Hud(game.getSpriteBatch(), character, this.game);
         key = new Key(keyPoint.x, keyPoint.y,"objects.png"); // Create the Key instance
+
         movementManager = new MovementManager(character, gameMap, hud, key, this.game);
         initializeCamera();
         camera.position.set(character.getX(), character.getY(), 0); //viewport
@@ -132,6 +135,7 @@ private Music music;
         movementManager.handleInput();
         movementManager.handleEnemyCollusion(delta);
         movementManager.handleTrapCollusion(delta);
+        movementManager.handleExtraLifeCollision();
 
         //cooldown
         character.update(delta);
@@ -154,6 +158,7 @@ private Music music;
             enemy.update(delta, gameMap); // Update enemy position
             enemy.render(game.getSpriteBatch()); // Render enemy
         }
+
         //draw character
         character.render(game.getSpriteBatch());
 

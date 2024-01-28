@@ -26,6 +26,7 @@ public class Character extends GameObject{
     private TextureRegion keyFrame;
     private float trapCooldownTime = 0; //cooldown
     private final float trapCooldownDuration = 0.7f; // 1 second cooldown
+
 private MazeRunnerGame game;
     private Animation<TextureRegion> standingDownAnimation, standingRightAnimation, standingUpAnimation,standingLeftAnimation;
    private MovementState currentMovementState = MovementState.STANDING;
@@ -197,6 +198,18 @@ private MazeRunnerGame game;
         }
     }
 
+    public void gainLife() {
+        if(hud.getScore()<5){
+            lives++;
+            if (hud != null) {
+                hud.setScore(lives);  // This will also update the hearts on the HUD
+                if (lives == 0) {
+                    hud.showGameOverScreen();
+                }
+            }
+        }}
+
+
     public float getWidth() {
         if (keyFrame != null) {
             return keyFrame.getRegionWidth();
@@ -244,6 +257,9 @@ private MazeRunnerGame game;
         }
     }
 
+    public boolean collidesWith(Rectangle otherRectangle) {
+        return boundingRectangle.overlaps(otherRectangle);
+    }
 
     //cooldown
     public void update(float deltaTime) {
@@ -257,4 +273,5 @@ private MazeRunnerGame game;
         }
         boundingRectangle.setPosition(getX(), getY());
     }
+
 }

@@ -3,6 +3,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
 
 public class MovementManager {
     private Character character;
@@ -11,10 +14,13 @@ public class MovementManager {
     private boolean isPaused;
     private Key key;
     private MazeRunnerGame game;
+
     private float timeSinceLastSound = 0;
     private boolean isCollidingWithHazard = false;
+
     private float timeSinceLastTrapSound = 0;
     private boolean isCollidingWithTrap = false;
+
 
     public MovementManager(Character character, GameMap gameMap, Hud hud, Key key, MazeRunnerGame game) {
         this.character = character;
@@ -23,7 +29,6 @@ public class MovementManager {
         this.hud = hud;
         this.key = key;
         this.isPaused = false;
-
     }
 
 
@@ -45,6 +50,7 @@ public class MovementManager {
                     hud.showKeyCollected();
                     game.playKeyPickupSound();
                 }
+
                 }
             }
 
@@ -60,6 +66,7 @@ public class MovementManager {
                         hud.showKeyCollected();
                         game.playKeyPickupSound();
                     }
+
                 }
 
             } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) { //7 is two smaller than sprite size divided by two (origin point for collusion detection is the middle)
@@ -73,6 +80,7 @@ public class MovementManager {
                         hud.showKeyCollected();
                         game.playKeyPickupSound();
                     }
+
                 }
 
             } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
@@ -86,6 +94,7 @@ public class MovementManager {
                         hud.showKeyCollected();
                         game.playKeyPickupSound();
                     }
+
                 }
             }
 
@@ -130,7 +139,28 @@ public class MovementManager {
 
         }
 
-        public void handleTrapCollusion(float deltaTime){
+
+    public void handleExtraLifeCollision() {
+        int tileSize = 16; // Assuming each tile is 16x16 pixels
+        float offsetX = (34 - tileSize) / 2f; // Adjust based on your character's sprite size
+        float offsetY = (32 - tileSize) / 2f; // Adjust based on your character's sprite size
+        int tileX = (int) ((character.getX() + offsetX) / tileSize);
+        int tileY = (int) ((character.getY() + offsetY) / tileSize);
+
+        GameObject gameObject = gameMap.getGameObjectAt(tileX, tileY);
+        if (gameObject instanceof ExtraLife) {
+            ExtraLife extraLife = (ExtraLife) gameObject;
+            if (!extraLife.isCollected()) { // Check if the heart has not been collected yet
+                extraLife.collect(); // Mark the heart as collected
+                game.playExtraLifeSound();
+                character.gainLife();
+                gameMap.removeGameObjectAt(tileX, tileY); // Remove the heart from the map
+            }
+        }
+    }
+
+
+    public void handleTrapCollusion(float deltaTime){
             boolean currentlyCollidingWithTrap = gameMap.collusionWithTrap(character.getX(), character.getY());
 
             if (currentlyCollidingWithTrap) {
@@ -154,7 +184,6 @@ public class MovementManager {
                 isCollidingWithTrap = false;
             }
         }
-
 
 
         public void pause() {

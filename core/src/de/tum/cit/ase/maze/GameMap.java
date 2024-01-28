@@ -8,7 +8,10 @@ import com.badlogic.gdx.math.Rectangle;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 public class GameMap {
     //class to hold the tiles and layout of a map
@@ -16,13 +19,17 @@ public class GameMap {
     private int width;
     private int height;
     private Path path;
+    private ExtraLife extraLife;
     private Array<Enemy> enemies = new Array<>(); //enemy movement
     private Array<Point> exitPoints = new Array<>(); //exitPoints
+
+
 
     public GameMap(String levelFilePath) {
         try {
             FileHandle fileHandle = Gdx.files.internal(levelFilePath);
             loadLevel(fileHandle);
+            placeExtraLives();
         } catch (IOException e) {
             Gdx.app.log("Level Load Error", "Failed to load level file: " + levelFilePath, e);
         }
@@ -44,6 +51,7 @@ public class GameMap {
             int y = Integer.parseInt(parts[1]);
             int tileType = Integer.parseInt(props.getProperty(key));
 
+
             //fill map with the respective tileType at the given coordinates
             if (tileType == 0|tileType == 1|tileType == 2|tileType == 3|tileType == 5) {
                 gameObjects[x][y] = createTile(tileType, x, y);
@@ -52,8 +60,10 @@ public class GameMap {
                 Enemy enemy = new Enemy(x, y, "mobs.png");
                 enemies.add(enemy);
             }
+
         }
     }
+
 
     //helper method to calculate map size
     private GameObject[][] calculateMapSize(Properties properties) {
@@ -71,6 +81,13 @@ public class GameMap {
         return gameObjects = new GameObject [width][height];
     }
 
+    public GameObject getGameObjectAt(int x, int y) {
+        return gameObjects[x][y];
+    }
+
+    public void removeGameObjectAt(int x, int y) {
+        gameObjects[x][y] = null;
+    }
     //helper method to return the right object texture (wall, entry ...) for each tile type / not efficient?
     public GameObject createTile(int tileType, float x, float y) {
         return switch (tileType) {
@@ -82,6 +99,31 @@ public class GameMap {
             case 5 -> new Key(x, y, "objects.png");
             default -> null;
         };
+    }
+
+    public void placeExtraLives() {
+        List<Point> freeTiles = new ArrayList<>();
+
+        // Iterate over the game map to find free tiles
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // Consider a tile free if it's a Path or not initialized (null)
+                if (gameObjects[x][y] == null || gameObjects[x][y] instanceof Path) {
+                    freeTiles.add(new Point(x, y));
+                }
+            }
+        }
+
+        Random random = new Random();
+        for (int i = 0; i < 2; i++) { // Place 2 extra lives
+            if (!freeTiles.isEmpty()) {
+                int index = random.nextInt(freeTiles.size());
+                Point point = freeTiles.remove(index); // Remove to avoid placing multiple items on the same tile
+
+                // Place an ExtraLife object at the chosen free tile
+                gameObjects[point.x][point.y] = new ExtraLife(point.x, point.y);
+            }
+        }
     }
 
     //method for drawing the maze
@@ -143,6 +185,7 @@ public class GameMap {
         }
         return false;
     }
+
 
     public boolean collusionWithKey(float x, float y){
         int tileSize = 16; // size of our tiles
@@ -207,8 +250,8 @@ public class GameMap {
         return null; //if not found
     }
 
+
     public void removeKey(Key key) {
-        // Find the position of the key in the gameObjects array and set it to null
         int tileSize = 16;
         int x = (int) (key.getX() / tileSize);
         int y = (int) (key.getY() / tileSize);
