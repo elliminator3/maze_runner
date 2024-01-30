@@ -113,6 +113,36 @@ public class Character extends GameObject{
             currentMovementState = MovementState.STANDING;
         }
     }
+    //specifies how to draw the character on the screen using a SpriteBatch
+    @Override
+    public void render(SpriteBatch batch) {
+        checkForStop();
+        if (currentMovementState == MovementState.STANDING) {
+            switch (currentDirection) {
+                case DOWN:
+                    currentAnimation = standingDownAnimation;
+                    break;
+                case UP:
+                    currentAnimation = standingUpAnimation;
+                    break;
+                case LEFT:
+                    currentAnimation = standingLeftAnimation;
+                    break;
+                case RIGHT:
+                    currentAnimation = standingRightAnimation;
+                    break;
+            }
+        }
+        currentFrame = currentAnimation.getKeyFrame(stateTime, true);  // Get current frame based on the state time
+        batch.draw(currentFrame, getX(), getY());  // Draw at character's current position
+
+    }
+
+
+    @Override
+    public void render(SpriteBatch batch, float x, float y) {
+        //not needed?
+    }
 
 
     // Movement methods
@@ -140,42 +170,6 @@ public class Character extends GameObject{
         currentMovementState = MovementState.MOVING_LEFT;
         currentDirection = Direction.LEFT;
     }
-
-
-    //specifies how to draw the character on the screen using a SpriteBatch
-    @Override
-    public void render(SpriteBatch batch) {
-        checkForStop(); // Update the movement state based on current input
-
-        // Choose the correct animation frame based on the character's state
-        if (currentMovementState == MovementState.STANDING) {
-            switch (currentDirection) {
-                case DOWN:
-                    currentFrame = standingDownAnimation.getKeyFrame(stateTime, true);
-                    break;
-                case UP:
-                    currentFrame = standingUpAnimation.getKeyFrame(stateTime, true);
-                    break;
-                case LEFT:
-                    currentFrame = standingLeftAnimation.getKeyFrame(stateTime, true);
-                    break;
-                case RIGHT:
-                    currentFrame = standingRightAnimation.getKeyFrame(stateTime, true);
-                    break;
-            }
-        } else {
-            currentFrame = currentAnimation.getKeyFrame(stateTime, true);
-        }
-
-        batch.draw(currentFrame, getX(), getY()); // Draw the current frame at the character's position
-    }
-
-
-    @Override
-    public void render(SpriteBatch batch, float x, float y) {
-        //not needed?
-    }
-
 
 
     public void resetAnimationStateTime() {

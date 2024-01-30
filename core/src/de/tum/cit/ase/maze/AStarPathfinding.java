@@ -5,7 +5,23 @@ import java.util.*;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Implements the A* pathfinding algorithm to find the shortest path between two points our a game map.
+ * A* is a best-first search algorithm that finds the least-cost path from a given initial node to one goal node
+ * (out of one or more possible goals). It uses a combination of the actual cost from the start node to a given node
+ * and the estimated cost from that given node to the goal to determine the order in which nodes are explored.
+ */
 public class AStarPathfinding {
+
+    /**
+     * Finds the shortest path between two points on the game map using the A* pathfinding algorithm.
+     *
+     * @param gameMap The game map on which the pathfinding is to be performed.
+     * @param start   The starting point of the path.
+     * @param end     The end point of the path.
+     * @return A list of {@link Point} objects representing the shortest path from the start to the end point,
+     *         including both start and end points. Returns an empty list if no path is found.
+     */
     public static List<Point> findPath(GameMap gameMap, Point start, Point end) {
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Map<Point, Node> allNodes = new HashMap<>();
@@ -51,20 +67,35 @@ public class AStarPathfinding {
         return Collections.emptyList(); //no path found
     }
 
-    //once the target node is reached, reconstruct the path from the target to the start
-    //by following the parent references from the target node back to the start node
+    /**
+     * Reconstructs the path from the end node to the start node by backtracking through the parent nodes.
+     *
+     * @param endNode The end node from which to start the path reconstruction.
+     * @return A list of {@link Point} objects representing the path from the start node to the end node.
+     */
+
     private static List<Point> reconstructPath(Node endNode) {
         List<Point> path = new ArrayList<>();
         Node currentNode = endNode;
         while (currentNode != null) {
             path.add(0, currentNode.position); // Add to the front
+            //reconstruct path by following the parent references from the target node back to the start node
             currentNode = currentNode.parent;
         }
         return path;
     }
 
+    /**
+     * Calculates the Manhattan distance between two points. The Manhattan distance is the sum of the absolute
+     * differences of their Cartesian coordinates. It is used as a heuristic in the A* pathfinding algorithm.
+     *
+     * @param a The first point.
+     * @param b The second point.
+     * @return The Manhattan distance between the two points.
+     */
     private static int manhattanDistance(Point a, Point b) {
         return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
     }
+
 }
 
