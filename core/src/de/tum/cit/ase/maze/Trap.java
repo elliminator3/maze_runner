@@ -10,13 +10,12 @@ public class Trap extends GameObject{
     private TextureRegion currentFrame;
     private static final int FRAME_COLS = 8; // Number of columns in the sprite sheet
     private static final int FRAME_ROWS = 15; // Number of rows in the sprite sheet
-    public Trap(float x, float y, String texturePath) {
-        super(x, y, texturePath);
+    public Trap(float x, float y, String texturePath, TextureManager textureManager) {
+        super(x, y, texturePath, textureManager);
         // Split the sprite sheet into individual frames
-        Texture basicSheet = new Texture(Gdx.files.internal(texturePath));
-        TextureRegion[][] tmp = TextureRegion.split(basicSheet,
-                basicSheet.getWidth() / FRAME_COLS,
-                basicSheet.getHeight() / FRAME_ROWS);
+        TextureRegion[][] tmp = TextureRegion.split(texture,
+                texture.getWidth() / FRAME_COLS,
+                texture.getHeight() / FRAME_ROWS);
 
         //spring is trap
         currentFrame = tmp[3][7];

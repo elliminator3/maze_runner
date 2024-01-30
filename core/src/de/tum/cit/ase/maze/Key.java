@@ -17,15 +17,14 @@ public class Key extends GameObject {
     private Rectangle boundingRectangle;
     private boolean isCollected = false;
 
-private Character character;
+    private Character character;
 
-    public Key(float x, float y, String texturePath) {
-        super(x, y, texturePath);
+    public Key(float x, float y, String texturePath, TextureManager textureManager) {
+        super(x, y, texturePath, textureManager);
         // Split the sprite sheet into individual frames
-        Texture basicSheet = new Texture(Gdx.files.internal(texturePath));
-        TextureRegion[][] tmp = TextureRegion.split(basicSheet,
-                basicSheet.getWidth() / FRAME_COLS,
-                basicSheet.getHeight() / FRAME_ROWS);
+        TextureRegion[][] tmp = TextureRegion.split(texture,
+                texture.getWidth() / FRAME_COLS,
+                texture.getHeight() / FRAME_ROWS);
         //key is nine (looks a bit like a key)
         currentFrame = tmp[16][5];
         boundingRectangle = new Rectangle(x, y, getWidth(), getHeight());

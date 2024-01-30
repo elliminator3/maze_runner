@@ -10,13 +10,12 @@ public class Exit extends GameObject{
     private TextureRegion currentFrame;
     private static final int FRAME_COLS = 12; // Number of columns in the sprite sheet
     private static final int FRAME_ROWS = 8; // Number of rows in the sprite sheet
-    public Exit(float x, float y, String texturePath) {
-        super(x, y, texturePath);
+    public Exit(float x, float y, String texturePath, TextureManager textureManager) {
+        super(x, y, texturePath, textureManager);
         // Split the sprite sheet into individual frames
-        Texture basicSheet = new Texture(Gdx.files.internal(texturePath));
-        TextureRegion[][] tmp = TextureRegion.split(basicSheet,
-                basicSheet.getWidth() / FRAME_COLS,
-                basicSheet.getHeight() / FRAME_ROWS);
+        TextureRegion[][] tmp = TextureRegion.split(texture,
+                texture.getWidth() / FRAME_COLS,
+                texture.getHeight() / FRAME_ROWS);
         //grey door is exit
         currentFrame = tmp[0][3];
     }

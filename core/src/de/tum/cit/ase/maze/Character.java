@@ -25,10 +25,10 @@ public class Character extends GameObject{
     private float speed = 90;
     private TextureRegion keyFrame;
     private float trapCooldownTime = 0; //cooldown
-    private final float trapCooldownDuration = 0.7f; // 1 second cooldown
-private MazeRunnerGame game;
+    private final float trapCooldownDuration = 0.7f; //1 second cooldown
+    private MazeRunnerGame game; //ToDo: delete?
     private Animation<TextureRegion> standingDownAnimation, standingRightAnimation, standingUpAnimation,standingLeftAnimation;
-   private MovementState currentMovementState = MovementState.STANDING;
+    private MovementState currentMovementState = MovementState.STANDING;
 
     // Additional attributes to handle animations
     private TextureRegion currentFrame;
@@ -45,8 +45,8 @@ private MazeRunnerGame game;
     private Direction currentDirection = Direction.DOWN;
 
 
-    public Character(float x, float y, String texturePath, int lives, GameMap maze) {
-        super(x, y, texturePath);
+    public Character(float x, float y, String texturePath, int lives, GameMap maze, TextureManager textureManager) {
+        super(x, y, texturePath, textureManager);
         this.hasKey = false;
         this.key = null;
         this.lives = lives;
@@ -183,7 +183,7 @@ private MazeRunnerGame game;
         this.hud = hud;
     }
 
-    //ToDo: why does sometimes more than one live get subtracted?
+
     public void loseLife() {
         if (trapCooldownTime <= 0 &&lives > 0) { //cooldown
             lives--;
@@ -195,7 +195,21 @@ private MazeRunnerGame game;
                 }
             }
         }
+
     }
+    public void gainLife() {
+        if(hud.getScore()<5){
+            lives++;
+            if (hud != null) {
+                hud.setScore(lives);  // This will also update the hearts on the HUD
+                if (lives == 0) {
+                    hud.showGameOverScreen();
+                }
+            }
+        }
+    }
+
+
 
     public float getWidth() {
         if (keyFrame != null) {
@@ -233,6 +247,11 @@ private MazeRunnerGame game;
         return boundingRectangle;
     }
 
+    public boolean collidesWith(Rectangle otherRectangle) {
+        return boundingRectangle.overlaps(otherRectangle);
+    }
+
+    //ToDo delete?
     public void checkForKeyCollision(Key key) {
         if (!key.isCollected() && getBoundingRectangle().overlaps(key.getBoundingRectangle())) {
             key.collect(maze);
