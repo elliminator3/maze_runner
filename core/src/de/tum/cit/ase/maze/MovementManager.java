@@ -101,7 +101,7 @@ public class MovementManager {
         } // Reset state time if not moving
     }
     public void checkWinCondition() {
-        if (character.hasKey() || key.isCollected() && gameMap.collusionWithExit(character.getX(), character.getY())) {
+        if ((character.hasKey() || key.isCollected()) && gameMap.collusionWithExit(character.getX(), character.getY())) {
             hud.showWinScreen();
         }
     }

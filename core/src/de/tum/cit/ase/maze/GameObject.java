@@ -1,6 +1,5 @@
 package de.tum.cit.ase.maze;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -16,10 +15,24 @@ public abstract class GameObject {
 
     protected Texture texture; //represents an image loaded into memory that can be drawn or rendered onto the screen
 
+    /**
+     * Constructs a new GameObject at the specified position with a texture. This constructor
+     * initializes the object's coordinates and associates a texture from the texture manager
+     * based on the provided texture path. It is intended for use by subclasses representing
+     * different elements within the game.
+     *
+     * @param x              The x-coordinate of the object's position on the game map.
+     * @param y              The y-coordinate of the object's position on the game map.
+     * @param texturePath    The path to the texture file that visually represents this game object.
+     *                       The path is used by the texture manager to load and store the texture
+     *                       for efficient reuse.
+     * @param textureManager The manager responsible for loading, storing, and providing textures
+     *                       for game objects. This ensures that textures are managed efficiently
+     *                       and are reused where possible, minimizing memory usage and load times.
+     */
     public GameObject(float x, float y, String texturePath, TextureManager textureManager) {
         this.x = x;
         this.y = y;
-        //this.texture = new Texture(Gdx.files.internal(texturePath));
         this.texture = textureManager.getTexture(texturePath);
 
     }
