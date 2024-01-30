@@ -9,7 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -221,8 +220,6 @@ public class Hud {
         heartTable.clear();
         int displayedHealth = Math.min(health, 5);
         for (int i = 0; i < displayedHealth; i++) {
-            //Drawable heartDrawable = new TextureRegionDrawable(fullHeart);
-            //Image heartImage = new Image(heartDrawable);
             Image fullHeartImage = new Image(fullHeart);
             fullHeartImage.setScale(2.2f);
             heartTable.add(fullHeartImage).padTop(25).padRight(5);
@@ -252,9 +249,6 @@ public class Hud {
         return viewport;
     }
 
-    public void setViewport(Viewport viewport) {
-        this.viewport = viewport;
-    }
     public void updatePositions() {
         //update size and position of the background
         blackBar.setSize(stage.getWidth(), 50);
@@ -262,7 +256,6 @@ public class Hud {
         // Adjust the position of the key image
         keyImage.setPosition(10, stage.getHeight() - keyImage.getHeight() - 20);
     }
-
     public Integer getScore() {
         return score;
     }

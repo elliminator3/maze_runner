@@ -45,25 +45,31 @@ public class MazeRunnerGame extends Game {
     private Music winMusic;
     public Sound keyPickupSound;
     public Sound extraLifeSound;
-public Sound enemySound;
+    public Sound enemySound;
     public Sound trapSound;
-public Sound gameOverSound;
+    public Sound gameOverSound;
 
     // Character animation downwards
     private Animation<TextureRegion> characterDownAnimation;
-    private final NativeFileChooser fileChooser; //fileChooser
-    private GameMap gameMap; //fileChooser
-    private String mapFilePath; //fileChooser
+
+    // File Chooser
+    private final NativeFileChooser fileChooser;
+    private String mapFilePath;
+    //Texture Manager
+    private TextureManager textureManager;
+
 
 
     /**
      * Constructor for MazeRunnerGame.
      *
      * @param fileChooser The file chooser for the game, typically used in desktop environment.
+     * @param textureManager The texture manager stores all maze textures for better performance of the game
      */
-    public MazeRunnerGame(NativeFileChooser fileChooser) {
+    public MazeRunnerGame(NativeFileChooser fileChooser, TextureManager textureManager) {
         super();
         this.fileChooser = fileChooser;
+        this.textureManager = textureManager;
     }
 
 
@@ -75,20 +81,21 @@ public Sound gameOverSound;
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
         shapeRenderer = new ShapeRenderer();
         skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
+        textureManager = new TextureManager();
         this.loadCharacterAnimation(); // Load character animation
 
 
         // Play some background music
         // Background sound
-      backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/Juhani Junkala [Chiptune Adventures] 1. Stage 1.ogg"));
-      backgroundMusic.setLooping(true);
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/Juhani Junkala [Chiptune Adventures] 1. Stage 1.ogg"));
+        backgroundMusic.setLooping(true);
         backgroundMusic.setVolume(0.5f);
         backgroundMusic.play();
 
 
         goToMenu(); // Navigate to the menu screen
 
-      menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/8bit Bossa.mp3")); // Replace with your menu music file
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/8bit Bossa.mp3")); // Replace with your menu music file
         menuMusic.setLooping(true);
         menuMusic.play();
 
@@ -97,14 +104,11 @@ public Sound gameOverSound;
 
 
         keyPickupSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_button2.wav"));
-
         extraLifeSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_powerup2.wav"));
-
-
-enemySound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_error9.wav"));
+        enemySound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_error9.wav"));
         trapSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_interaction1.wav"));
 
-gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative1.wav"));
+        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative1.wav"));
     }
 
     @Override
@@ -113,21 +117,12 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
 
     }
 
-    /**
-     * Switches to the menu screen.
-     */
-    public void playKeyPickupSound() {
-        keyPickupSound.play(); // Adjust volume as needed
-    }
-    public void playEnemySound() {
-        enemySound.play(1.0f); // Adjust volume as needed
-    }
-    public void playTrapSound() {
-        trapSound.play(); // Adjust volume as needed
-    }
-    public void playExtraLifeSound() {
-        extraLifeSound.play();}
 
+    // Sound methods
+    public void playKeyPickupSound() { keyPickupSound.play(); }
+    public void playEnemySound() { enemySound.play(1.0f);}
+    public void playTrapSound() { trapSound.play();}
+    public void playExtraLifeSound() { extraLifeSound.play();}
     public void playGameOverSound() {
         if (gameOverSound != null) {
             gameOverSound.play(1.0f); // 1.0f for full volume
@@ -138,6 +133,12 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
             winMusic.play(); // 1.0f for full volume
         }
     }
+    public void playBackgroundMusic() {
+        if (backgroundMusic != null) {
+            backgroundMusic.play(); // 1.0f for full volume
+        }
+    }
+
     public void stopBackgroundMusic() {
         if (backgroundMusic != null && backgroundMusic.isPlaying()) {
             backgroundMusic.stop();
@@ -149,6 +150,15 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
             winMusic.stop();
         }
     }
+    public void stopMenuMusic() {
+        if (menuMusic != null && menuMusic.isPlaying()) {
+            menuMusic.stop();
+        }
+    }
+
+    /**
+     * Switches to the menu screen.
+     */
     public void goToMenu() {
         if (backgroundMusic != null && backgroundMusic.isPlaying()) {
             backgroundMusic.stop();
@@ -159,8 +169,8 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
         stopWinMusic();
         this.setScreen(new MenuScreen(this)); // Set the current screen to MenuScreen
         //if (gameScreen != null) {
-           // gameScreen.dispose(); // Dispose the game screen if it exists
-            //gameScreen = null;}
+        // gameScreen.dispose(); // Dispose the game screen if it exists
+        //gameScreen = null;}
 // Only hide the game screen, do not dispose of it
         if (gameScreen != null) {
             gameScreen.pause();
@@ -260,17 +270,12 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
         getScreen().dispose(); // Dispose the current screen
         spriteBatch.dispose(); // Dispose the spriteBatch
         skin.dispose(); // Dispose the skin
-        if (backgroundMusic != null) {
-            backgroundMusic.dispose();
-        }
-        if (menuMusic != null) {
-            menuMusic.dispose();
-        }
+        if (backgroundMusic != null) { backgroundMusic.dispose();}
+        if (menuMusic != null) { menuMusic.dispose();}
         keyPickupSound.dispose();
         if (enemySound != null) enemySound.dispose();
-        if (gameOverSound != null) {
-            gameOverSound.dispose();
-        }
+        if (gameOverSound != null) {gameOverSound.dispose();}
+        //if(textureManager != null) textureManager.dispose();
     }
 
     // Getter methods
@@ -292,6 +297,9 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
     public void setMapFilePath(String mapFilePath) {
         this.mapFilePath = mapFilePath;
     }
+
+    public TextureManager getTextureManager() { return textureManager;}
+
 
     public void chooseMazeFile() {
         var fileChooserConfig = new NativeFileChooserConfiguration();
@@ -318,7 +326,14 @@ gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative
                 System.err.println("Error picking maze file: " + exception.getMessage());            }
         });
     }
+
     public void goToGameWithNewMap(String mapFilePath) {
+        if (menuMusic != null && menuMusic.isPlaying()) {
+            menuMusic.stop();
+        }
+        if (backgroundMusic != null && !backgroundMusic.isPlaying()) {
+            backgroundMusic.play();
+        }
         if (gameScreen != null) {
             gameScreen.dispose(); // Dispose of the current game screen if it exists
         }

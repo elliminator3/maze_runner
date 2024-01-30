@@ -15,8 +15,8 @@ public class ExtraLife extends GameObject {
     private boolean isCollected = false;
     private static final String EXTRA_LIFE_TEXTURE_PATH = "objects.png"; // Update with actual path
 
-    public ExtraLife(float x, float y) {
-        super(x, y, EXTRA_LIFE_TEXTURE_PATH);
+    public ExtraLife(float x, float y, TextureManager textureManager) {
+        super(x, y, EXTRA_LIFE_TEXTURE_PATH, textureManager);
         Texture extraLifeSheet = new Texture(Gdx.files.internal(EXTRA_LIFE_TEXTURE_PATH));
         TextureRegion[][] tmp = TextureRegion.split(extraLifeSheet, extraLifeSheet.getWidth() / FRAME_COLS, extraLifeSheet.getHeight() / FRAME_ROWS);
         currentFrame = tmp[0][4]; // Assuming the extra life is at the first row and fifth column

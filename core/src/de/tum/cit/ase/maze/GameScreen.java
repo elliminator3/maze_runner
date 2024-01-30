@@ -11,8 +11,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -23,13 +21,15 @@ public class GameScreen implements Screen {
     private final MazeRunnerGame game;
     private OrthographicCamera camera;
     private Character character;
-    private MovementManager movementManager; // The movement manager
-    private float sinusInput = 0f;
+    private MovementManager movementManager;
     private GameMap gameMap;
     private Hud hud;
     private Key key;
     private Viewport gamePort;
-private Music music;
+    private Viewport hudPort; //new
+    private Music music;
+    private TextureManager textureManager;
+
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
@@ -39,81 +39,90 @@ private Music music;
     public GameScreen(MazeRunnerGame game) {
 
         this.game = game;
-        //initialize gameMap
-        gameMap = new GameMap("maps/level-2.properties");
-        //find entry of the gameMap
+        this.textureManager = game.getTextureManager();
+
+        //default values
+        String mapPath = game.getMapFilePath();
+        if (mapPath != null && !mapPath.isEmpty()) {
+            gameMap = new GameMap(mapPath, textureManager);
+        } else {
+            gameMap = new GameMap("maps/level-1.properties", textureManager); //ToDo: how should we handle this?
+        }
+
+        //initialize gamePort as ScreenViewport /necessary for viewport requirements
+        //gamePort = new ScreenViewport(camera);
+
+        //find entry and key of the gameMap
         Point entryPoint = gameMap.findEntry();
         Point keyPoint = gameMap.findKey();
 
-//hud //ToDo (look in resize method)
         //initialize character and camera
-        character = new Character(entryPoint.x, entryPoint.y, "character.png", 5, gameMap);
-        hud = new Hud(game.getSpriteBatch(), character, this.game);
-        key = new Key(keyPoint.x, keyPoint.y,"objects.png"); // Create the Key instance
-
-        movementManager = new MovementManager(character, gameMap, hud, key, this.game);
+        character = new Character(entryPoint.x, entryPoint.y, "character.png", 5, gameMap, textureManager);
+        hud = new Hud(game.getSpriteBatch(), character, game);
+        key = new Key(keyPoint.x, keyPoint.y,"objects.png", textureManager); // Create the Key instance
+        movementManager = new MovementManager(character, gameMap, hud, key, game);
         initializeCamera();
-        camera.position.set(character.getX(), character.getY(), 0); //viewport
-        //screenViewport for viewport requirements
-        gamePort = new ScreenViewport(camera);
 
+        //Viewport for viewport requirements
+        gamePort = new ScreenViewport(camera);
+        hudPort = new ScreenViewport(new OrthographicCamera());
 
         character.setHud(hud);
         // Get the font from the game's skin
         BitmapFont font = game.getSkin().getFont("font");
+
     }
 
-    //viewport requirements 1
+    //initial camera position
     private void initializeCamera() {
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.zoom = 0.5f; //zoom-level
 
-        //start camera with frame that contains the character
-        camera.position.x = character.getX();
-        camera.position.y = character.getY();
+        //start camera focus in the middle of the map
+        camera.position.x = (gameMap.getWidth()*16) / 2;
+        camera.position.y = (gameMap.getHeight()*16) / 2;
 
         camera.update();
     }
-    //viewport requirements 2
+
+    //update camera according to viewport requirements
     private void updateCameraPosition(){
-        final float LERP_FACTOR = 0.5f;
+        final float LERP_FACTOR = 0.009f; //has to catch up with character speed
 
-        //limits within which the camera shall follow the player's movement
-        float cameraMoveThresholdX = camera.viewportWidth * camera.zoom * 0.2f; // 10% von jeder Seite
-        float cameraMoveThresholdY = camera.viewportHeight * camera.zoom * 0.2f; // 10% von jeder Seite
+        //'safe zone' margins
+        // visible in the middle 80 percent of the screen as minimum requirement
+        // decided for middle 60 percent because it gives a better overview of the map
+        float safeZoneMarginX = camera.viewportWidth * camera.zoom * 0.2f;
+        float safeZoneMarginY = camera.viewportHeight * camera.zoom * 0.2f;
 
-        //maximum permitted position of the camera based on the map
-        float maxCameraX = gameMap.getWidth() * 16 - camera.viewportWidth * camera.zoom / 2;
-        float maxCameraY = gameMap.getHeight() * 16 - camera.viewportHeight * camera.zoom / 2;
+        // Calculate the boundaries of the safe zone
+        float leftBoundary = camera.position.x - camera.viewportWidth * camera.zoom / 2 + safeZoneMarginX;
+        float rightBoundary = camera.position.x + camera.viewportWidth * camera.zoom / 2 - safeZoneMarginX;
+        float bottomBoundary = camera.position.y - camera.viewportHeight * camera.zoom / 2 + safeZoneMarginY;
+        float topBoundary = camera.position.y + camera.viewportHeight * camera.zoom / 2 - safeZoneMarginY;
 
-        //coordinates of the character /ToDo: center!!
-        float playerCenterX = character.getX();
-        float playerCenterY = character.getY();
+        // Character's position //ToDo: center?
+        float playerX = character.getX();
+        float playerY = character.getY();
 
-        //set camera position to the target position
-        float targetX = playerCenterX;
-        float targetY = playerCenterY;
+        // Determine if the camera needs to move to keep the character in the safe zone
+        float targetX = camera.position.x;
+        float targetY = camera.position.y;
 
-        //has character crossed the camera boundaries? -> update the target position
-        if (playerCenterX < camera.position.x - cameraMoveThresholdX) {
-            targetX = camera.position.x - cameraMoveThresholdX;
-        } else if (playerCenterX > camera.position.x + cameraMoveThresholdX) {
-            targetX = camera.position.x + cameraMoveThresholdX;
+        if (playerX < leftBoundary) {
+            targetX = playerX - safeZoneMarginX;
+        } else if (playerX > rightBoundary) {
+            targetX = playerX + safeZoneMarginX;
         }
 
-        if (playerCenterY < camera.position.y - cameraMoveThresholdY) {
-            targetY = camera.position.y - cameraMoveThresholdY;
-        } else if (playerCenterY > camera.position.y + cameraMoveThresholdY) {
-            targetY = camera.position.y + cameraMoveThresholdY;
+        if (playerY < bottomBoundary) {
+            targetY = playerY - safeZoneMarginY;
+        } else if (playerY > topBoundary) {
+            targetY = playerY + safeZoneMarginY;
         }
 
-        //clamping
-        targetX = Math.max(camera.viewportWidth * camera.zoom / 2, Math.min(targetX, maxCameraX));
-        targetY = Math.max(camera.viewportHeight * camera.zoom / 2, Math.min(targetY, maxCameraY));
-
-        //interpolation
+        // Interpolate camera position for smoother movement
         camera.position.x += (targetX - camera.position.x) * LERP_FACTOR;
         camera.position.y += (targetY - camera.position.y) * LERP_FACTOR;
 
@@ -153,12 +162,12 @@ private Music music;
         gameMap.renderBackground(game.getSpriteBatch());
         gameMap.render(game.getSpriteBatch());
 
+
         //enemy movement
         for (Enemy enemy : gameMap.getEnemies()) {
-            enemy.update(delta, gameMap); // Update enemy position
+            enemy.update(delta, gameMap,character); // Update enemy position //new argument character
             enemy.render(game.getSpriteBatch()); // Render enemy
         }
-
         //draw character
         character.render(game.getSpriteBatch());
 
@@ -183,20 +192,10 @@ private Music music;
         camera.viewportHeight = height;
         camera.update();
 
-        //ToDo: Hud
-        /*// Aktualisiere das Viewport des HUD mit der neuen Breite und Höhe
+        // Update hud viewport //new
         hud.getViewport().update(width, height, true);
-        hud.getViewport().apply();
+        hud.updatePositions();
 
-        // Stelle sicher, dass das HUD oben auf dem Bildschirm zentriert ist
-        hud.stage.getViewport().getCamera().position.set(width / 2f, height, 0);
-        hud.stage.getViewport().getCamera().update();
-
-        // Dies ist notwendig, damit das Layout korrekt neu berechnet wird
-        hud.stage.getViewport().update(width, height, true);
-        hud.stage.getViewport().apply();
-        hud.stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        hud.stage.getViewport().getCamera().update();*/
     }
 
     public void update(float dt){
@@ -205,6 +204,7 @@ private Music music;
             movementManager.handleInput();
         }
     }
+
     @Override
     public void pause() {
         movementManager.pause();
@@ -228,13 +228,16 @@ private Music music;
 
     @Override
     public void dispose() {
-            // Dispose assets like textures when you're done with them
-            if (character != null) character.getTexture().dispose();
-            if (key != null) key.getTexture().dispose();
-            if (hud != null) hud.dispose();
-            if (gameMap != null) gameMap.dispose();
-            // Dispose other assets if necessary
-        }
-
+        // Dispose assets like textures when you're done with them
+        if (character != null) character.getTexture().dispose();
+        if (key != null) key.getTexture().dispose();
+        if (hud != null) hud.dispose();
+        if (gameMap != null) gameMap.dispose();
+        if (textureManager != null) textureManager.dispose();
+        // Dispose other assets if necessary
     }
+
+
+
+}
 
