@@ -6,16 +6,13 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Align;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
@@ -59,6 +56,7 @@ public class MazeRunnerGame extends Game {
     private String mapFilePath;
     //Texture Manager
     private TextureManager textureManager;
+    private boolean showNoGameStartedMessage = false;
 
 
 
@@ -113,12 +111,39 @@ public class MazeRunnerGame extends Game {
     }
 
     /**
-     * Renders the current screen, delegated from the game's main render loop.
+     *  It first checks if the special "no game started" message needs to be displayed, which occurs if the player
+     *  attempts to resume a game without having started one. If the flag is set, it displays a centered message
+     *  on a black background.
+     *  Renders the current screen, delegated from the game's main render loop.
      */
     @Override
     public void render(){
-        super.render();
+        if (showNoGameStartedMessage) {
+            // Clear the screen
+            Gdx.gl.glClearColor(0, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+            // Ensure any previous shapeRenderer usage is properly ended before starting spriteBatch
+            shapeRenderer.end();
+
+            spriteBatch.begin();
+            BitmapFont font = skin.getFont("font");
+            if (font != null) {
+                font.getData().setScale(1.5f); // Adjust the scale to fit the screen
+                font.setColor(Color.TEAL); // Set font color to white
+
+                String message = "YOU HAVE NOT STARTED A GAME YET";
+                GlyphLayout layout = new GlyphLayout(font, message);
+                float width = layout.width;
+                float height = layout.height;
+
+                // Center the message on the screen
+                font.draw(spriteBatch, layout, (Gdx.graphics.getWidth() - width), (Gdx.graphics.getHeight() + height)/1.5f);
+            }
+            spriteBatch.end();
+        } else {
+            super.render();
+        }
     }
 
     /**
@@ -222,7 +247,7 @@ public class MazeRunnerGame extends Game {
     }
 
     /**
-     * Switches to the game screen.
+     * Switches to the game screen. //ToDo delete
      */
     public void goToGame() {
         if (menuMusic != null && menuMusic.isPlaying()) {
@@ -240,7 +265,8 @@ public class MazeRunnerGame extends Game {
     }
 
     /**
-     * Resumes a paused game or prompts the user if no game is in progress.
+     * Resumes a paused game. If no game has been started (indicated by a null {@code mapFilePath}),
+     * it displays a message to the user for a set duration, indicating that no game has been initiated.
      */
     public void resumeGame() {
         if (menuMusic != null && menuMusic.isPlaying()) {
@@ -250,29 +276,16 @@ public class MazeRunnerGame extends Game {
             backgroundMusic.play();
         }
         if (gameScreen == null) {
-            Gdx.gl.glClearColor(0, 0, 0, 1);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-            // Code above should show a screen to inform the player that no game has been started yet but does not work
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(Color.BLACK);
-            shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            shapeRenderer.end();
-
-            spriteBatch.begin();
-            BitmapFont font = skin.getFont("font");
-            font.getData().setScale(1.5f); // Adjust the scale to fit the screen
-            String message = "YOU HAVE NOT STARTED A GAME YET";
-            float width = font.getRegion().getRegionWidth();
-            float height = font.getRegion().getRegionHeight();
-            font.draw(spriteBatch, message, (Gdx.graphics.getWidth() - width) / 2, (Gdx.graphics.getHeight() + height) / 2, width, Align.center, false);
-            spriteBatch.end();
-
-            // timer code should let user return to menu automatically after 10 seconds but also does not work
+            showNoGameStartedMessage = true;
+            // Set a timer to return to the menu and reset the flag
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
-                    Gdx.app.postRunnable(() -> goToMenu());
+                    Gdx.app.postRunnable(() -> {
+                        goToMenu();
+                        showNoGameStartedMessage = false; // Reset the flag
+                    });
                 }
             }, 10); // Delay in seconds
 
@@ -280,6 +293,7 @@ public class MazeRunnerGame extends Game {
         else {
             setScreen(gameScreen);
             gameScreen.resume();
+            showNoGameStartedMessage = false; // Ensure the flag is reset if not showing the message
         }
     }
 
