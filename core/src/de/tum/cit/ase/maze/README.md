@@ -54,12 +54,14 @@ Is responsible for processing the input of the player, checks for resulting inte
 **<p>Game Mechanics</p>**
 * Health: The player has a finite number of lives represented by hearts in the HUD. Interacting with traps or enemies will reduce the player's lives. Losing all lives results in a game over.
 * Keys and Exits: To win, the player must collect a key and then reach the maze's exit. The HUD displays whether the key has been collected.
-* Enemies and Traps: Enemies patrol the maze, and traps are hidden throughout. Once the character is in close proximity to the ghosts, they will start chasing the character! Colliding with either results in a loss of life.
+* Enemies and Traps: Enemies patrol the maze, and traps are hidden throughout. Once the character is in range to the ghosts, they will start chasing the character! Colliding with either results in a loss of life.
 
 **<p>Beyond Requirements</p>**
-+ Heart Display: The current health score of the character is displayed via hearts in the HUD
++ Heart Display for HUD: The current health score of the character is displayed via hearts in the HUD
 + Timer: The player has a limited amount of time to navigate the maze, collect the key, and find the exit. Running out of time results in a game over. The Timer is also displayed on the HUD.
 * Extra Lives: Scattered throughout the maze are extra lives that the player can collect to increase their chances of survival.
 * Smart Enemy Movements: If the character is in close proximity to the enemies, the enemies will start chasing the character.
-* Menu Display: For a nicer visual game experience the background in the menu is visually pleasing.
+* Menu Display: For a nicer visual game experience the background in the menu is an image that fits the general aesthetic of our game.
+* "You have not stated a game yet" message: If the player tries to continue a game without ever having started one he gets this massage to understand that he first has to start a game
+* Character animation: To make the characters movement more pleasing the game includes animations for up, down, left, and right movement.
 

@@ -265,7 +265,7 @@ public class GameMap {
      * @param y The y-coordinate in the game world.
      * @return {@code true} if there is a collision with a trap at the specified coordinates, {@code false} otherwise.
      */
-    //collusion detection with trap and enemy
+    //collision detection with trap and enemy
     public boolean collusionWithTrap(float x, float y){
         int tileSize = 16; // size of our tiles
         float offsetX = (34 - tileSize) / 2f;
@@ -278,6 +278,7 @@ public class GameMap {
         }
         return false;
     }
+
 
     /**
      * Detects collisions with the key object at the specified game world coordinates.
