@@ -25,7 +25,9 @@ import games.spooky.gdx.nativefilechooser.NativeFileChooserIntent;
 
 /**
  * The MazeRunnerGame class represents the core of the Maze Runner game.
- * It manages the screens and global resources like SpriteBatch and Skin.
+ * It is responsible for the lifecycle of the game, managing screens, assets, and music,
+ * as well as handling the game's rendering loop.
+ * It extends the {@link Game} class from libGDX, which is the core of any libGDX game application.
  */
 public class MazeRunnerGame extends Game {
     public static final int V_WIDTH = 400;
@@ -74,7 +76,8 @@ public class MazeRunnerGame extends Game {
 
 
     /**
-     * Called when the game is created. Initializes the SpriteBatch and Skin.
+     * Called when the game is first created. Sets up global resources like the SpriteBatch, Skin, and music,
+     * and navigates to the initial menu screen.
      */
     @Override
     public void create() {
@@ -94,7 +97,6 @@ public class MazeRunnerGame extends Game {
 
 
         goToMenu(); // Navigate to the menu screen
-
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/8bit Bossa.mp3")); // Replace with your menu music file
         menuMusic.setLooping(true);
         menuMusic.play();
@@ -107,49 +109,87 @@ public class MazeRunnerGame extends Game {
         extraLifeSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_powerup2.wav"));
         enemySound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_error9.wav"));
         trapSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_interaction1.wav"));
-
         gameOverSound = Gdx.audio.newSound(Gdx.files.internal("music/sfx_sounds_negative1.wav"));
     }
 
+    /**
+     * Renders the current screen, delegated from the game's main render loop.
+     */
     @Override
     public void render(){
         super.render();
 
     }
 
-
+    /**
+     * Plays the sound associated with picking up a key.
+     */
     // Sound methods
     public void playKeyPickupSound() { keyPickupSound.play(); }
+
+    /**
+     * Plays the sound associated with encountering an enemy.
+     */
     public void playEnemySound() { enemySound.play(1.0f);}
+
+    /**
+     * Plays the sound associated with encountering a trap.
+     */
     public void playTrapSound() { trapSound.play();}
+
+    /**
+     * Plays the sound associated with encountering an extra life.
+     */
     public void playExtraLifeSound() { extraLifeSound.play();}
+
+    /**
+     * Plays the sound associated with game over.
+     */
     public void playGameOverSound() {
         if (gameOverSound != null) {
             gameOverSound.play(1.0f); // 1.0f for full volume
         }
     }
+
+    /**
+     * Plays the music associated with winning the game.
+     */
     public void playWinMusic() {
         if (winMusic != null) {
             winMusic.play(); // 1.0f for full volume
         }
     }
+
+    /**
+     * plays the background music of the game.
+     */
     public void playBackgroundMusic() {
         if (backgroundMusic != null) {
             backgroundMusic.play(); // 1.0f for full volume
         }
     }
 
+    /**
+     * Stops the background music of the game.
+     */
     public void stopBackgroundMusic() {
         if (backgroundMusic != null && backgroundMusic.isPlaying()) {
             backgroundMusic.stop();
         }
     }
 
+    /**
+     * Stops the win music of the game.
+     */
     public void stopWinMusic() {
         if (winMusic != null && winMusic.isPlaying()) {
             winMusic.stop();
         }
     }
+
+    /**
+     * Stops the menu music of the game.
+     */
     public void stopMenuMusic() {
         if (menuMusic != null && menuMusic.isPlaying()) {
             menuMusic.stop();
@@ -157,7 +197,8 @@ public class MazeRunnerGame extends Game {
     }
 
     /**
-     * Switches to the menu screen.
+     * Transitions the game to the menu screen, stopping any game-specific music and
+     * playing the menu music.
      */
     public void goToMenu() {
         if (backgroundMusic != null && backgroundMusic.isPlaying()) {
@@ -168,9 +209,7 @@ public class MazeRunnerGame extends Game {
         }
         stopWinMusic();
         this.setScreen(new MenuScreen(this)); // Set the current screen to MenuScreen
-        //if (gameScreen != null) {
-        // gameScreen.dispose(); // Dispose the game screen if it exists
-        //gameScreen = null;}
+
 // Only hide the game screen, do not dispose of it
         if (gameScreen != null) {
             gameScreen.pause();
@@ -199,6 +238,10 @@ public class MazeRunnerGame extends Game {
             menuScreen = null;
         }
     }
+
+    /**
+     * Resumes a paused game or prompts the user if no game is in progress.
+     */
     public void resumeGame() {
         if (menuMusic != null && menuMusic.isPlaying()) {
             menuMusic.stop();
@@ -210,6 +253,7 @@ public class MazeRunnerGame extends Game {
             Gdx.gl.glClearColor(0, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+            // Code above should show a screen to inform the player that no game has been started yet but does not work
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(Color.BLACK);
             shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -224,8 +268,7 @@ public class MazeRunnerGame extends Game {
             font.draw(spriteBatch, message, (Gdx.graphics.getWidth() - width) / 2, (Gdx.graphics.getHeight() + height) / 2, width, Align.center, false);
             spriteBatch.end();
 
-            // Code above should show a screen to inform the player that no game has been started yet but does not work
-            // timer code should let user return to menu automatically after 10 seconds but also does not work of course
+            // timer code should let user return to menu automatically after 10 seconds but also does not work
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
@@ -294,13 +337,25 @@ public class MazeRunnerGame extends Game {
     public String getMapFilePath() {
         return mapFilePath;
     }
+
+    // Setter method
     public void setMapFilePath(String mapFilePath) {
         this.mapFilePath = mapFilePath;
     }
 
+    // Getter method
     public TextureManager getTextureManager() { return textureManager;}
 
-
+    /**
+     * Opens the file chooser interface for the user to select a maze file to play.
+     * This method utilizes the native file chooser dialog to allow the user to select a file
+     * with a '.properties' extension, typically used to define the layout and properties of a maze.
+     *
+     * Once a file is chosen, the game proceeds to load the selected maze. If the user cancels the
+     * file selection or an error occurs during the file selection process, the game will handle these
+     * events appropriately — by doing nothing in the case of cancellation, or logging an error message
+     * if an error occurs.
+     */
     public void chooseMazeFile() {
         var fileChooserConfig = new NativeFileChooserConfiguration();
         fileChooserConfig.title = "Pick a maze file";
@@ -327,6 +382,11 @@ public class MazeRunnerGame extends Game {
         });
     }
 
+    /**
+     * Starts a new game with a maze map selected by the user.
+     *
+     * @param mapFilePath The file path to the selected maze map.
+     */
     public void goToGameWithNewMap(String mapFilePath) {
         if (menuMusic != null && menuMusic.isPlaying()) {
             menuMusic.stop();

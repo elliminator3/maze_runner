@@ -4,6 +4,11 @@ import com.badlogic.gdx.Input;
 
 import java.awt.*;
 
+/**
+ * The {@code MovementManager} class is responsible for managing the movement and interactions
+ * of the player's character within the game. It handles input from the player, checks for collisions
+ * with game objects such as keys, traps, and enemies, and manages the consequences of these interactions.
+ */
 public class MovementManager {
     private Character character;
     private GameMap gameMap;
@@ -16,6 +21,15 @@ public class MovementManager {
     private float timeSinceLastTrapSound = 0;
     private boolean isCollidingWithTrap = false;
 
+    /**
+     * Constructs a {@code MovementManager} with the game's character, map, HUD, key, and the main game class.
+     *
+     * @param character The player's character.
+     * @param gameMap The game map.
+     * @param hud The heads-up display showing game information.
+     * @param key The key object within the game.
+     * @param game The main game class, used to access shared resources and methods.
+     */
 
     public MovementManager(Character character, GameMap gameMap, Hud hud, Key key, MazeRunnerGame game) {
         this.character = character;
@@ -27,7 +41,11 @@ public class MovementManager {
 
     }
 
-
+    /**
+     * Handles keyboard input from the player to move the character and performs actions
+     * based on the character's interactions with the game environment, such as collecting
+     * keys or reaching the game's exit point.
+     */
     public void handleInput() {
         if (isPaused) return;
         float nextX = character.getX();
@@ -94,17 +112,29 @@ public class MovementManager {
             if (gameMap.collusionWithExit(character.getX(), character.getY())) {
 
             }
-            //ToDo what do we need here?
-            //character.updateAnimationStateTime(Gdx.graphics.getDeltaTime());
+
         } else {
             character.resetAnimationStateTime();
         } // Reset state time if not moving
     }
+
+    /**
+     * Checks if the winning conditions of the game are met, typically by the character
+     * collecting a key and reaching the exit, and then displays the win screen.
+     */
     public void checkWinCondition() {
-        if (character.hasKey() || key.isCollected() && gameMap.collusionWithExit(character.getX(), character.getY())) {
+        if ((character.hasKey() || key.isCollected()) && gameMap.collusionWithExit(character.getX(), character.getY())) {
             hud.showWinScreen();
         }
     }
+
+    /**
+     * Handles the character's collision with enemies within the game. If a collision is detected,
+     * the character loses a life and a sound effect is played. This method also implements a cooldown
+     * mechanism to avoid rapid life loss.
+     *
+     * @param deltaTime The time in seconds since the last frame.
+     */
     public void handleEnemyCollusion(float deltaTime){
         if(gameMap.collusionWithEnemy(character.getX(), character.getY())) {
             if (!isCollidingWithHazard) {
@@ -128,6 +158,10 @@ public class MovementManager {
 
     }
 
+    /**
+     * Handles the character's collision with extra life objects within the game. If a collision is detected,
+     * the character gains a life, the extra life object is removed from the game, and a sound effect is played.
+     */
     public void handleExtraLifeCollision() {
         int tileSize = 16; // Assuming each tile is 16x16 pixels
         float offsetX = (34 - tileSize) / 2f; // Adjust based on your character's sprite size
@@ -147,6 +181,13 @@ public class MovementManager {
         }
     }
 
+    /**
+     * Handles the character's collision with traps within the game. Similar to enemy collision,
+     * this method detects collision with traps, causes the character to lose a life, plays a sound effect,
+     * and implements a cooldown mechanism.
+     *
+     * @param deltaTime The time in seconds since the last frame.
+     */
     public void handleTrapCollusion(float deltaTime){
         boolean currentlyCollidingWithTrap = gameMap.collusionWithTrap(character.getX(), character.getY());
 
@@ -172,12 +213,17 @@ public class MovementManager {
         }
     }
 
-
-
+    /**
+     * Pauses the game's movement and interactions, typically used when the game menu is accessed
+     * or the game is otherwise interrupted.
+     */
     public void pause() {
         isPaused = true;
     }
 
+    /**
+     * Resumes the game's movement and interactions after being paused.
+     */
     public void resume() {
         isPaused = false;
     }

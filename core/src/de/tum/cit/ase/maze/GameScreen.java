@@ -13,8 +13,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.awt.*;
 
 /**
- * The GameScreen class is responsible for rendering the gameplay screen.
- * It handles the game logic and rendering of the game elements.
+ * The {@code GameScreen} class handles the rendering and updating of the gameplay screen in Maze Runner.
+ * It encapsulates game logic, manages the rendering of game elements such as the map, the character, and HUD,
+ * and processes user input for character movement and game controls.
  */
 public class GameScreen implements Screen {
 
@@ -32,9 +33,10 @@ public class GameScreen implements Screen {
 
 
     /**
-     * Constructor for GameScreen. Sets up the camera and font.
+     * Constructs the GameScreen with reference to the main game class for resource access.
+     * It sets up the game environment, including the map, character, HUD, and camera.
      *
-     * @param game The main game class, used to access global resources and methods.
+     * @param game The main {@link MazeRunnerGame} class, providing access to shared resources.
      */
     public GameScreen(MazeRunnerGame game) {
 
@@ -73,7 +75,9 @@ public class GameScreen implements Screen {
 
     }
 
-    //initial camera position
+    /**
+     * Initializes the camera to the starting position and sets the zoom level.
+     */
     private void initializeCamera() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -86,7 +90,10 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
-    //update camera according to viewport requirements
+    /**
+     * Updates the camera position to follow the character while staying within the defined safe zone margins.
+     * This ensures the character remains visible and centered during movement.
+     */
     private void updateCameraPosition(){
         final float LERP_FACTOR = 0.009f; //has to catch up with character speed
 
@@ -130,7 +137,12 @@ public class GameScreen implements Screen {
     }
 
 
-    // Screen interface methods with necessary functionality
+    /**
+     * Renders the game elements including the map, character, and HUD.
+     * It also handles game logic updates and user input every frame.
+     *
+     * @param delta The time in seconds since the last render call.
+     */
     @Override
     public void render(float delta) {
         // Check for escape key press to go back to the menu
@@ -185,6 +197,12 @@ public class GameScreen implements Screen {
 
     }
 
+    /**
+     * Adjusts the camera and HUD viewports in response to the screen resizing, maintaining the game's aspect ratio.
+     *
+     * @param width  The new width of the screen.
+     * @param height The new height of the screen.
+     */
     @Override
     public void resize(int width, int height) {
         //update the camera with the new width and height
@@ -198,6 +216,12 @@ public class GameScreen implements Screen {
 
     }
 
+    /**
+     * Updates the game logic based on the time elapsed since the last frame.
+     * This method is responsible for updating the HUD and handling character movement.
+     *
+     * @param dt The time in seconds since the last update.
+     */
     public void update(float dt){
         if(!hud.isGameOver()) {
             hud.update(dt);
@@ -205,27 +229,45 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Pauses the game, stopping character movement and the HUD timer.
+     */
     @Override
     public void pause() {
         movementManager.pause();
         hud.pauseTimer();
     }
 
+    /**
+     * Resumes the game from a paused state, reactivating character movement and the HUD timer.
+     */
     @Override
     public void resume() {
         movementManager.resume();
         hud.resumeTimer();
     }
 
+    /**
+     * Called when the GameScreen becomes the current screen for the game.
+     * Typically used to set up resources and begin music or animations.
+     */
     @Override
     public void show() {
 
     }
 
+    /**
+     * Called when the GameScreen is no longer the current screen.
+     * Used to pause animations and music or save game state.
+     */
     @Override
     public void hide() {
     }
 
+    /**
+     * Disposes of all the resources used by the GameScreen to free up memory.
+     * This includes textures, sounds, and any other assets specific to the GameScreen.
+     */
     @Override
     public void dispose() {
         // Dispose assets like textures when you're done with them
