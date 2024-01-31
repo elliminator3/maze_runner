@@ -2,6 +2,7 @@ package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
@@ -141,6 +142,11 @@ public class MazeRunnerGame extends Game {
                 font.draw(spriteBatch, layout, (Gdx.graphics.getWidth() - width), (Gdx.graphics.getHeight() + height)/1.5f);
             }
             spriteBatch.end();
+            // Check for Escape key press to return to the menu
+            if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+                showNoGameStartedMessage = false; // Reset the flag
+                goToMenu(); // Change to the menu screen
+            }
         } else {
             super.render();
         }
@@ -287,7 +293,7 @@ public class MazeRunnerGame extends Game {
                         showNoGameStartedMessage = false; // Reset the flag
                     });
                 }
-            }, 10); // Delay in seconds
+            }, 5); // Delay in seconds
 
         }
         else {
