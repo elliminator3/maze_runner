@@ -3,7 +3,6 @@ package de.tum.cit.ase.maze;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -28,7 +27,6 @@ public class GameScreen implements Screen {
     private Key key;
     private Viewport gamePort;
     private Viewport hudPort; //new
-    private Music music;
     private TextureManager textureManager;
 
 
@@ -48,11 +46,9 @@ public class GameScreen implements Screen {
         if (mapPath != null && !mapPath.isEmpty()) {
             gameMap = new GameMap(mapPath, textureManager);
         } else {
-            gameMap = new GameMap("maps/level-1.properties", textureManager); //ToDo: how should we handle this?
+            gameMap = new GameMap("maps/level-1.properties", textureManager); //If an invalid path is chosen we want the player to start with level one
         }
 
-        //initialize gamePort as ScreenViewport /necessary for viewport requirements
-        //gamePort = new ScreenViewport(camera);
 
         //find entry and key of the gameMap
         Point entryPoint = gameMap.findEntry();
@@ -109,7 +105,7 @@ public class GameScreen implements Screen {
         float bottomBoundary = camera.position.y - camera.viewportHeight * camera.zoom / 2 + safeZoneMarginY;
         float topBoundary = camera.position.y + camera.viewportHeight * camera.zoom / 2 - safeZoneMarginY;
 
-        // Character's position //ToDo: center?
+        // Character's position
         float playerX = character.getX();
         float playerY = character.getY();
 
@@ -160,7 +156,7 @@ public class GameScreen implements Screen {
 
         //cooldown
         character.update(delta);
-//update(delta); makes character go faster but timer as well :/
+
         //viewport
         updateCameraPosition();
 
@@ -177,7 +173,7 @@ public class GameScreen implements Screen {
 
         //enemy movement
         for (Enemy enemy : gameMap.getEnemies()) {
-            enemy.update(delta, gameMap,character); // Update enemy position //new argument character
+            enemy.update(delta, gameMap,character); // Update enemy position
             enemy.render(game.getSpriteBatch()); // Render enemy
         }
         //draw character

@@ -15,7 +15,8 @@ import java.util.Random;
 
 
 /**
- * The {@code GameMap} class is responsible for managing the game's map layout, including walls, paths, entry and exit points, traps, enemies, and collectible items. It loads the map configuration from a properties file and provides functionality to render the game objects, check for collisions, and manage game object interactions.
+ * The {@code GameMap} class is responsible for managing the game's map layout, including walls, paths, entry and exit points, traps, enemies, and collectible items.
+ * It loads the map configuration from a properties file and provides functionality to render the game objects, check for collisions, and manage game object interactions.
  */
 public class GameMap {
     //class to hold the tiles and layout of a map
@@ -27,6 +28,7 @@ public class GameMap {
     private ExtraLife extraLife;
     private Array<Enemy> enemies = new Array<>(); // Enemy movement
     private Array<Point> exitPoints = new Array<>(); // ExitPoints
+    private final int TILE_SIZE = 16; // very often used for calculations
 
 
     /**
@@ -53,7 +55,6 @@ public class GameMap {
      * @param textureManager The texture manager to load textures for the game objects.
      * @throws IOException If there is an error reading the properties file.
      */
-    //loads the level configuration from a .properties file
     public void loadLevel(FileHandle levelFilePath, TextureManager textureManager) throws IOException {
         Properties props = new Properties();
         props.load(levelFilePath.reader());
@@ -85,7 +86,6 @@ public class GameMap {
      * @param properties The properties loaded from the level configuration file.
      * @return A 2D array of {@link GameObject}s representing the map layout.
      */
-    //helper method to calculate map size
     private GameObject[][] calculateMapSize(Properties properties) {
         int maxX = 0;
         int maxY = 0;
@@ -130,27 +130,27 @@ public class GameMap {
      */
     //method for drawing the maze
     public void render (SpriteBatch batch){
-        int tileSize = 16;
+
         for (int y = 0; y < gameObjects.length; y++) {
             for (int x = 0; x < gameObjects[y].length; x++) {
                 GameObject gameObject = gameObjects[x][y];
                 if (gameObject != null) {
-                    gameObject.render(batch, x * tileSize, y * tileSize);
+                    gameObject.render(batch, x * TILE_SIZE, y * TILE_SIZE);
                 }
             }
         }
     }
 
     /**
-     * Renders the background of the game map, typically the path texture.
+     * Renders the background of the game map (path texture).
      *
      * @param batch The {@link SpriteBatch} used for drawing.
      */
     public void renderBackground(SpriteBatch batch){
-        int tileSize = 16;
+
         for (int y = 0; y < gameObjects.length; y++) {
             for (int x = 0; x < gameObjects[y].length; x++) {
-                path.render(batch, x * tileSize, y * tileSize); //draws the background with path texture
+                path.render(batch, x * TILE_SIZE, y * TILE_SIZE); //draws the background with path texture
             }
         }
     }
@@ -217,13 +217,13 @@ public class GameMap {
      */
     //method prevent character from moving through walls
     public boolean isCellBlocked(float x, float y){
-        int tileSize = 16; // size of our tiles
-        float offsetX = (34 - tileSize) / 2f;
-        float offsetY = (32 - tileSize) / 2f;
+
+        float offsetX = (34 - TILE_SIZE) / 2f;
+        float offsetY = (32 - TILE_SIZE) / 2f;
 
         // Calculate the offset to center the 16x16 collision box within the 34x32 sprite
-        float tileX = (x + offsetX) / tileSize;
-        float tileY = (y + offsetY) / tileSize;
+        float tileX = (x + offsetX) / TILE_SIZE;
+        float tileY = (y + offsetY) / TILE_SIZE;
 
         //check maze bounds
         if (tileX <= 0 || tileX >= gameObjects.length || tileY <= 0|| tileY >= gameObjects[0].length) {
@@ -239,7 +239,8 @@ public class GameMap {
     }
 
     /**
-     * Checks if the specified cell is free of any non-walkable game objects.
+     * Checks if the specified cell is free of any non-walkable game objects. It is used for the A* pathfinding algorithm because isCellBlocked()
+     * does not work properly in this context.
      *
      * @param x X-coordinate in the game object grid.
      * @param y Y-coordinate in the game object grid.
@@ -259,19 +260,18 @@ public class GameMap {
 
     /**
      * Detects collisions with trap objects at the specified game world coordinates.
-     * This method is essential for implementing gameplay mechanics where traps affect the character's health or status.
+     * This method is essential for reducing the character's amount of lives when he collides with a trap.
      *
      * @param x The x-coordinate in the game world.
      * @param y The y-coordinate in the game world.
      * @return {@code true} if there is a collision with a trap at the specified coordinates, {@code false} otherwise.
      */
-    //collision detection with trap and enemy
     public boolean collusionWithTrap(float x, float y){
-        int tileSize = 16; // size of our tiles
-        float offsetX = (34 - tileSize) / 2f;
-        float offsetY = (32 - tileSize) / 2f;
-        int tileX = (int)((x + offsetX) / tileSize);
-        int tileY = (int)((y + offsetY) / tileSize);
+
+        float offsetX = (34 - TILE_SIZE) / 2f;
+        float offsetY = (32 - TILE_SIZE) / 2f;
+        int tileX = (int)((x + offsetX) / TILE_SIZE);
+        int tileY = (int)((y + offsetY) / TILE_SIZE);
         GameObject gameObject = gameObjects[tileX][tileY];
         if(gameObject instanceof Trap){
             return true;
@@ -282,18 +282,18 @@ public class GameMap {
 
     /**
      * Detects collisions with the key object at the specified game world coordinates.
-     * This method is used to determine when the character has collected a key, a common gameplay element in many games.
+     * This method is used to determine when the character has collected a key.
      *
      * @param x The x-coordinate in the game world.
      * @param y The y-coordinate in the game world.
      * @return {@code true} if there is a collision with a key at the specified coordinates, {@code false} otherwise.
      */
     public boolean collusionWithKey(float x, float y){
-        int tileSize = 16; // size of our tiles
-        float offsetX = (34 - tileSize) / 2f;
-        float offsetY = (32 - tileSize) / 2f;
-        int tileX = (int)((x + offsetX) / tileSize);
-        int tileY = (int)((y + offsetY) / tileSize);
+
+        float offsetX = (34 - TILE_SIZE) / 2f;
+        float offsetY = (32 - TILE_SIZE) / 2f;
+        int tileX = (int)((x + offsetX) / TILE_SIZE);
+        int tileY = (int)((y + offsetY) / TILE_SIZE);
         GameObject gameObject = gameObjects[tileX][tileY];
         if(gameObject instanceof Key){
             return true;
@@ -303,18 +303,18 @@ public class GameMap {
 
     /**
      * Checks for collisions with the exit object at the specified game world coordinates.
-     * This function is vital for level progression, allowing the game to transition to a new level or state when the character reaches the exit.
+     * This function is vital for level progression, allowing the character to accomplish to a level when he reaches the exit with a key.
      *
      * @param x The x-coordinate in the game world.
      * @param y The y-coordinate in the game world.
      * @return {@code true} if there is a collision with an exit at the specified coordinates, {@code false} otherwise.
      */
     public boolean collusionWithExit(float x, float y){
-        int tileSize = 16; // size of our tiles
-        float offsetX = (34 - tileSize) / 2f;
-        float offsetY = (32 - tileSize) / 2f;
-        int tileX = (int)((x + offsetX) / tileSize);
-        int tileY = (int)((y + offsetY) / tileSize);
+
+        float offsetX = (34 - TILE_SIZE) / 2f;
+        float offsetY = (32 - TILE_SIZE) / 2f;
+        int tileX = (int)((x + offsetX) / TILE_SIZE);
+        int tileY = (int)((y + offsetY) / TILE_SIZE);
         GameObject gameObject = gameObjects[tileX][tileY];
         if(gameObject instanceof Exit){
             return true;
@@ -324,22 +324,22 @@ public class GameMap {
 
     /**
      * Detects collisions between the character and any enemy objects in the game world.
-     * This method is crucial for implementing interactions between the player's character and enemies, such as combat or health deduction.
+     * This method is crucial for implementing interactions between the player's character and enemies, such as health deduction.
      *
      * @param x The x-coordinate in the game world where the character is located.
      * @param y The y-coordinate in the game world where the character is located.
      * @return {@code true} if the character is colliding with an enemy, {@code false} otherwise.
      */
     public boolean collusionWithEnemy(float x, float y){
-        int tileSize = 16; // size of our tiles
+
         float characterWidth = 8; // Width of the character's collision box
         float characterHeight = 10; // Height of the character's collision box
         float enemyWidth = 8; // Slightly larger width for the enemy's collision box
         float enemyHeight = 10; // Slightly larger height for the enemy's collision box
 
         // Adjustments to center the character's collision box
-        float characterOffsetX = (tileSize - characterWidth) / 2f;
-        float characterOffsetY = (tileSize - characterHeight) / 2f;
+        float characterOffsetX = (TILE_SIZE - characterWidth) / 2f;
+        float characterOffsetY = (TILE_SIZE - characterHeight) / 2f;
 
         // Create the character's bounding box
         Rectangle characterRect = new Rectangle(
@@ -352,12 +352,12 @@ public class GameMap {
         // Check each enemy for a potential collision
         for (Enemy enemy : enemies) {
             // Calculate the enemy's position in pixels
-            float enemyPixelX = enemy.getX() * tileSize;
-            float enemyPixelY = enemy.getY() * tileSize;
+            float enemyPixelX = enemy.getX() * TILE_SIZE;
+            float enemyPixelY = enemy.getY() * TILE_SIZE;
 
             // Adjustments to center the enemy's collision box
-            float enemyOffsetX = (tileSize - enemyWidth) / 2f;
-            float enemyOffsetY = (tileSize - enemyHeight) / 2f;
+            float enemyOffsetX = (TILE_SIZE - enemyWidth) / 2f;
+            float enemyOffsetY = (TILE_SIZE - enemyHeight) / 2f;
 
             // Create the enemy's bounding box
             Rectangle enemyRect = new Rectangle(
@@ -379,16 +379,16 @@ public class GameMap {
 
     /**
      * Finds the entry point in the game map and returns its coordinates.
-     * This method is typically used at the start of a level to position the character at the correct starting location.
+     * This method is used at the start of a level to position the character at the correct starting location.
      *
      * @return A {@code Point} object representing the coordinates of the entry point, or {@code null} if not found.
      */
     public Point findEntry() {
-        int tileSize = 16;
+
         for (int y = 0; y < gameObjects.length; y++) {
             for (int x = 0; x < gameObjects[y].length; x++) {
                 if (gameObjects[x][y] instanceof Entry) {
-                    return new Point(x * tileSize, y * tileSize); // Point is a simple class holding x and y integers
+                    return new Point(x * TILE_SIZE, y * TILE_SIZE); // Point is a simple class holding x and y integers
                 }
             }
         }
@@ -397,16 +397,16 @@ public class GameMap {
 
     /**
      * Locates the key object within the game map and returns its coordinates.
-     * This is essential for games where collecting a key is necessary to unlock doors or solve puzzles.
+     * This is essential because collecting a key is necessary to unlock the exit.
      *
      * @return A {@code Point} object representing the coordinates of the key, or {@code null} if not found.
      */
     public Point findKey() {
-        int tileSize = 16;
+
         for (int y = 0; y < gameObjects.length; y++) {
             for (int x = 0; x < gameObjects[y].length; x++) {
                 if (gameObjects[x][y] instanceof Key) {
-                    return new Point(x * tileSize, y * tileSize); // Point is a simple class holding x and y integers
+                    return new Point(x * TILE_SIZE, y * TILE_SIZE); // Point is a simple class holding x and y integers
                 }
             }
         }
@@ -421,29 +421,12 @@ public class GameMap {
      */
     public void removeKey(Key key) {
         // Find the position of the key in the gameObjects array and set it to null
-        int tileSize = 16;
-        int x = (int) (key.getX() / tileSize);
-        int y = (int) (key.getY() / tileSize);
+
+        int x = (int) (key.getX() / TILE_SIZE);
+        int y = (int) (key.getY() / TILE_SIZE);
         gameObjects[x][y] = null;
     }
 
-    /**
-     * Identifies all exit points within the game map and returns their coordinates.
-     * This function is useful in games with multiple exits or goals.
-     *
-     * @return An {@code Array} of {@code Point} objects representing the coordinates of all exit points.
-     */
-    //ExitPoints
-    public Array<Point> findExitPoints() {
-        for (int y = 0; y < gameObjects.length; y++) {
-            for (int x = 0; x < gameObjects[y].length; x++) {
-                if (gameObjects[x][y] instanceof Exit) {
-                    exitPoints.add(new Point(x , y));
-                }
-            }
-        }
-        return exitPoints;
-    }
 
     /**
      * Returns the width of the game map in tiles.
@@ -509,12 +492,11 @@ public class GameMap {
 
     /**
      * Determines the neighboring cells of a given position that are not blocked and can be moved to.
-     * This method is used for pathfinding algorithms, particularly for implementing intelligent enemy movement that avoids obstacles.
+     * This method is used for our A* pathfinding algorithm (intelligent enemy movement) that avoids obstacles.
      *
      * @param position The {@code Point} representing the current position for which neighbors are to be found.
      * @return A {@code List} of {@code Point} objects representing the accessible neighboring cells.
      */
-    //new intelligent enemy movement
     public List<Point> getNeighbors(Point position) {
         List<Point> neighbors = new ArrayList<>();
         // Add neighbors (up, down, left, right)
